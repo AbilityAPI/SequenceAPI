@@ -28,7 +28,9 @@ repositories {
     mavenCentral()
 }
 
-dependencies {}
+dependencies {
+    compileOnly 'com.google.guava:guava:21.0'
+}
 
 blossom {
     def location = 'src/main/java/com/abilityapi/sequenceapi/Constants.java'

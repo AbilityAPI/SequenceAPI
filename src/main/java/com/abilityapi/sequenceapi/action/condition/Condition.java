@@ -1,6 +1,6 @@
 package com.abilityapi.sequenceapi.action.condition;
 
-public abstract class Condition<T, C, E> implements ConditionSupplier<T, C, E> {
+public abstract class Condition implements ConditionSupplier {
 
     private ConditionTypes conditionType = ConditionTypes.UNDEFINED;
 

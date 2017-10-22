@@ -1,13 +1,13 @@
 package com.abilityapi.sequenceapi.action.condition;
 
-import com.abilityapi.sequenceapi.util.MutableContext;
+import com.abilityapi.sequenceapi.origin.Origin;
 
 import java.util.Optional;
 
-public class ConditionResult<E> {
+public class ConditionResult {
 
     private boolean accept = false;
-    private MutableContext<E> mutableContext = null;
+    private Origin origin = null;
 
     public ConditionResult() {}
 
@@ -19,12 +19,12 @@ public class ConditionResult<E> {
         this.accept = accept;
     }
 
-    public Optional<MutableContext<E>> getMutableContext() {
-        return Optional.ofNullable(this.mutableContext);
+    public Optional<Origin> getOrigin() {
+        return Optional.ofNullable(this.origin);
     }
 
-    public void setMutableContext(MutableContext<E> mutableContext) {
-        this.mutableContext = mutableContext;
+    public void setOrigin(Origin origin) {
+        this.origin = origin;
     }
 
 }

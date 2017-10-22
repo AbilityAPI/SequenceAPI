@@ -1,16 +1,22 @@
 package com.abilityapi.sequenceapi.action.type.observe;
 
 import com.abilityapi.sequenceapi.action.ActionType;
+import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.origin.Origin;
 
 public class ObserverAction<T> implements ActionType {
 
+    private final Class<? extends T> eventClazz;
+
     private int delay = 0;
     private int expire = 0;
 
-    public ObserverAction() {}
+    public ObserverAction(Class<? extends T> eventClazz) {
+        this.eventClazz = eventClazz;
+    }
 
-    public void addCondition() {
+    @Override
+    public void addCondition(Condition condition) {
 
     }
 
@@ -34,19 +40,19 @@ public class ObserverAction<T> implements ActionType {
         return this.expire;
     }
 
-    public Origin apply(Origin origin, T event) {
+    public final Origin apply(final Origin origin, final T event) {
         return null;
     }
 
-    public Origin success(Origin origin, T event) {
+    public final Origin success(final Origin origin, final T event) {
         return null;
     }
 
-    public Origin failure(Origin origin, T event) {
+    public final Origin failure(final Origin origin, final T event) {
         return null;
     }
 
-   public  Class<? extends T> getEventClass() {
+    public final Class<? extends T> getEventClass() {
         return null;
     }
 

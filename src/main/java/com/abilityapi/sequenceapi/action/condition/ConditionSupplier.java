@@ -1,28 +1,22 @@
 package com.abilityapi.sequenceapi.action.condition;
 
-import com.abilityapi.sequenceapi.util.ImmutableContext;
-import com.abilityapi.sequenceapi.util.MutableContext;
+import com.abilityapi.sequenceapi.action.ActionType;
+import com.abilityapi.sequenceapi.origin.Origin;
 
 /**
- * Supplier of an operation for acquiring
- * the summary over a set of conditions.
- *
- * @param <T> the event type
- * @param <E> the data type
+ * Supplier for the result of this condition with
+ * context.
  */
 @FunctionalInterface
-public interface ConditionSupplier<T, C, E> {
+public interface ConditionSupplier {
 
     /**
-     * Returns the result of applying this condition
-     * to its arguments.
+     * Returns the {@link ConditionResult} of applying this {@link ActionType}
+     * condition with the {@link Origin} context.
      *
-     * @param event the event
-     * @param immutableContext the immutable context provided to this condition
-     * @param mutableContext the mutable context provided to this condition
-     * @param timeSinceLast the period between now and the last action
+     * @param origin the origin
      * @return the condition result
      */
-    ConditionResult apply(T event, ImmutableContext<C> immutableContext, MutableContext<E> mutableContext, long timeSinceLast);
+    ConditionResult apply(final Origin origin);
 
 }
