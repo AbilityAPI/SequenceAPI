@@ -1,6 +1,6 @@
 package com.abilityapi.sequenceapi.action.condition;
 
-import com.abilityapi.sequenceapi.action.ActionType;
+import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.origin.Origin;
 
 /**
@@ -11,7 +11,7 @@ import com.abilityapi.sequenceapi.origin.Origin;
 public interface ConditionSupplier {
 
     /**
-     * Returns the {@link ConditionResult} of applying this {@link ActionType}
+     * Returns the {@link ConditionResult} of applying this {@link Action}
      * condition with the {@link Origin} context.
      *
      * @param origin the origin

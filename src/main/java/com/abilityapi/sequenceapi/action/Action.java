@@ -1,11 +1,12 @@
 package com.abilityapi.sequenceapi.action;
 
 import com.abilityapi.sequenceapi.action.condition.Condition;
+import com.abilityapi.sequenceapi.origin.Origin;
 
 /**
  * Represents an action type.
  */
-public interface ActionType {
+public interface Action {
 
     void addCondition(Condition condition);
 
@@ -16,5 +17,11 @@ public interface ActionType {
     int getDelay();
 
     int getExpire();
+
+    Origin apply(final Origin origin);
+
+    Origin success(final Origin origin);
+
+    Origin failure(final Origin origin);
 
 }

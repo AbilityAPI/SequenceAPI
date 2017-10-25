@@ -1,10 +1,10 @@
 package com.abilityapi.sequenceapi.action.type.observe;
 
-import com.abilityapi.sequenceapi.action.ActionType;
+import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.origin.Origin;
 
-public class ObserverAction<T> implements ActionType {
+public class ObserverAction<T> implements Action {
 
     private final Class<? extends T> eventClazz;
 
@@ -40,15 +40,18 @@ public class ObserverAction<T> implements ActionType {
         return this.expire;
     }
 
-    public final Origin apply(final Origin origin, final T event) {
+    @Override
+    public Origin apply(Origin origin) {
         return null;
     }
 
-    public final Origin success(final Origin origin, final T event) {
+    @Override
+    public Origin success(Origin origin) {
         return null;
     }
 
-    public final Origin failure(final Origin origin, final T event) {
+    @Override
+    public Origin failure(Origin origin) {
         return null;
     }
 

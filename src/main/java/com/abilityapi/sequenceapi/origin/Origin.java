@@ -6,15 +6,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class Origin {
 
+    public static OriginKey UNIQUE_KEY = OriginKey.of("unique_key", null);
     public static OriginKey ROOT = OriginKey.of("root", null);
-
     public static OriginKey SOURCE = OriginKey.of("source", null);
-
     public static OriginKey OWNER = OriginKey.of("owner", null);
-
     public static OriginKey STATE = OriginKey.of("state", null);
 
     public static Builder builder() {
@@ -29,6 +28,10 @@ public class Origin {
 
     private Origin(Map<OriginKey, Object> origins) {
         this.origins = ImmutableMap.copyOf(origins);
+    }
+
+    public final UUID getUniqueKey() {
+        return (UUID) this.origins.get(UNIQUE_KEY);
     }
 
     public final Object getRoot() {
@@ -62,7 +65,15 @@ public class Origin {
             origin.origins.forEach(this::custom);
         }
 
-        Builder root(final Object value) {
+        public Builder uniqueKey(final UUID value) {
+            if (!this.keysUsed.contains(Origin.UNIQUE_KEY.getId())) {
+                this.origins.put(Origin.UNIQUE_KEY, value);
+                this.keysUsed.add(Origin.UNIQUE_KEY.getId());
+            }
+            return this;
+        }
+
+        public Builder root(final Object value) {
             if (!this.keysUsed.contains(Origin.ROOT.getId())) {
                 this.origins.put(Origin.ROOT, value);
                 this.keysUsed.add(Origin.ROOT.getId());
@@ -70,7 +81,7 @@ public class Origin {
             return this;
         }
 
-        Builder source(final Object value) {
+        public Builder source(final Object value) {
             if (!this.keysUsed.contains(Origin.SOURCE.getId())) {
                 this.origins.put(Origin.SOURCE, value);
                 this.keysUsed.add(Origin.SOURCE.getId());
@@ -78,7 +89,7 @@ public class Origin {
             return this;
         }
 
-        Builder owner(final Object value) {
+        public Builder owner(final Object value) {
             if (!this.keysUsed.contains(Origin.OWNER.getId())) {
                 this.origins.put(Origin.OWNER, value);
                 this.keysUsed.add(Origin.OWNER.getId());
@@ -86,7 +97,7 @@ public class Origin {
             return this;
         }
 
-        Builder state(final Object value) {
+        public Builder state(final Object value) {
             if (!this.keysUsed.contains(Origin.STATE.getId())) {
                 this.origins.put(Origin.STATE, value);
                 this.keysUsed.add(Origin.STATE.getId());
@@ -94,7 +105,7 @@ public class Origin {
             return this;
         }
 
-        Builder custom(final OriginKey key, final Object value) {
+        public Builder custom(final OriginKey key, final Object value) {
             if (!this.keysUsed.contains(key.getId())) {
                 this.origins.put(key, value);
                 this.keysUsed.add(key.getId());
@@ -102,7 +113,7 @@ public class Origin {
             return this;
         }
 
-        Origin build() {
+        public Origin build() {
             return new Origin(this.origins);
         }
 
