@@ -7,13 +7,13 @@ import com.google.common.collect.Multimap;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public abstract class SimpleSequenceManager<T> {
+public abstract class SequenceManager<T> {
 
     private final SequenceRegistry<T> sequenceRegistry;
     private final Multimap<UUID, Sequence<T>> sequences = HashMultimap.create();
     private final Multimap<UUID, Class<? extends T>> blockedSequences = HashMultimap.create();
 
-    public SimpleSequenceManager(SequenceRegistry<T> sequenceRegistry) {
+    public SequenceManager(SequenceRegistry<T> sequenceRegistry) {
         this.sequenceRegistry = sequenceRegistry;
     }
 
@@ -127,7 +127,7 @@ public abstract class SimpleSequenceManager<T> {
             remove = true;
         }
 
-        return false;
+        return remove;
     }
 
     private void _createBlueprints(final T event, final Origin origin) {
