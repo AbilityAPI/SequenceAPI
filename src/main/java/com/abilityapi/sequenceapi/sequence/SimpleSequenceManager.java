@@ -42,7 +42,7 @@ public abstract class SimpleSequenceManager<T> {
         this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
             if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getNextActionClass())) return true;
 
-            return this._invokeScheduler(sequence);
+            return this._invokeScheduler(sequence, origin);
         });
     }
 
@@ -51,7 +51,7 @@ public abstract class SimpleSequenceManager<T> {
             if (predicate.test(sequence)) return false;
             if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getNextActionClass())) return true;
 
-            return this._invokeScheduler(sequence);
+            return this._invokeScheduler(sequence, origin);
         });
     }
 
@@ -93,12 +93,40 @@ public abstract class SimpleSequenceManager<T> {
             remove = true;
         }
 
-        // 3. Check if the sequence has finished and fire the event and remove.
+        // 3. Check if the sequence has finished and fire the hook and remove.
 
-        return false;
+        if (sequenceState.equals(Sequence.State.FINISHED)) {
+            // Fire sequence finish hook.
+
+            remove = true;
+        }
+
+        return remove;
     }
 
-    private boolean _invokeScheduler(final Sequence<T> sequence) {
+    private boolean _invokeScheduler(final Sequence<T> sequence, final Origin origin) {
+        boolean remove = false;
+
+        // 1. Apply the sequence.
+
+        sequence.applySchedule(origin);
+
+        // 2. Check if the sequence is cancelled, or is expired.
+
+        Sequence.State sequenceState = sequence.getState();
+
+        if (!sequenceState.isSafe()) {
+            remove = true;
+        }
+
+        // 3. Check if the sequence has finished and fire the hook and remove.
+
+        if (sequenceState.equals(Sequence.State.FINISHED)) {
+            // Fire sequence finish hook.
+
+            remove = true;
+        }
+
         return false;
     }
 
