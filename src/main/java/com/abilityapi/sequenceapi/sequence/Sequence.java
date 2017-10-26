@@ -9,6 +9,8 @@ public interface Sequence<T> {
 
     boolean applySchedule(final Origin origin);
 
+    SequenceBlueprint<T> getBlueprint();
+
     Origin getOrigin();
 
     Class<? extends T> getNextActionClass();
