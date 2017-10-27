@@ -17,6 +17,13 @@ public abstract class SequenceManager<T> {
         this.sequenceRegistry = sequenceRegistry;
     }
 
+    /**
+     * Invokes the observer check with the provided event
+     * and {@link Origin}.
+     *
+     * @param event the event
+     * @param origin the origin
+     */
     public void invokeObserver(final T event, final Origin origin) {
         this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
            if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getNextActionClass())) return true;
@@ -27,9 +34,17 @@ public abstract class SequenceManager<T> {
         this._createBlueprints(event, origin);
     }
 
+    /**
+     * Invokes the observer check with the provided event
+     * and {@link Origin} if the predicate returns true.
+     *
+     * @param event the event
+     * @param origin the origin
+     * @param predicate the predicate
+     */
     public void invokeObserverIf(final T event, final Origin origin, final Predicate<Object> predicate) {
         this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
-            if (predicate.test(sequence)) return false;
+            if (!predicate.test(sequence)) return false;
             if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getNextActionClass())) return true;
 
             return this._invokeObserver(event, sequence, origin);
@@ -38,6 +53,12 @@ public abstract class SequenceManager<T> {
         this._createBlueprints(event, origin);
     }
 
+    /**
+     * Invokes the scheduler update with the provided
+     * {@link Origin}.
+     *
+     * @param origin the origin
+     */
     public void updateScheduler(final Origin origin) {
         this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
             if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getNextActionClass())) return true;
@@ -46,6 +67,13 @@ public abstract class SequenceManager<T> {
         });
     }
 
+    /**
+     * Invokes the scheduler update with the provided
+     * {@link Origin} if the predicate returns true.
+     *
+     * @param origin the origin
+     * @param predicate the predicate
+     */
     public void updateSchedulerIf(final Origin origin, final Predicate<Object> predicate) {
         this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
             if (predicate.test(sequence)) return false;
@@ -55,22 +83,56 @@ public abstract class SequenceManager<T> {
         });
     }
 
+    /**
+     * Adds the trigger class from the {@link Origin} root
+     * to the block list, which is removed on the next invocation.
+     *
+     * @param origin the origin
+     */
     public void block(final Origin origin) {
         if (this.blockedSequences.containsEntry(origin.getUniqueKey(), origin.getRoot().getClass())) return;
 
         this.blockedSequences.put(origin.getUniqueKey(), (Class<? extends T>) origin.getRoot().getClass());
     }
 
+    /**
+     * Removes the trigger class found in the
+     * {@link Origin} root in the block list.
+     *
+     * @param origin the origin
+     */
     public void unblock(final Origin origin) {
         if (!this.blockedSequences.containsEntry(origin.getUniqueKey(), origin.getRoot().getClass())) return;
 
         this.blockedSequences.put(origin.getUniqueKey(), (Class<? extends T>) origin.getRoot().getClass());
     }
 
+    /**
+     * Removes all the {@link Sequence} from the running
+     * list if it has expired or cancelled.
+     *
+     * <p>If force is set to true, it will remove all of the
+     * running sequences regardless whether it has been
+     * cancelled or expired.</p>
+     *
+     * @param force false to remove safely, true to remove with force
+     */
     public void clean(boolean force) {
         this.sequences.keySet().forEach(uuid -> this.clean(Origin.builder().uniqueKey(uuid).build(), force));
     }
 
+    /**
+     * Removes an {@link Origin}s unique id specific
+     * {@link Sequence} from the running list if it has
+     * expired or cancelled.
+     *
+     * <p>If force is set to true, it will remove all of the
+     * running sequences regardless whether it has been
+     * cancelled or expired.</p>
+     *
+     * @param origin the origin
+     * @param force false to remove safely, true to remove with force
+     */
     public void clean(final Origin origin, boolean force) {
         this.sequences.get(origin.getUniqueKey()).removeIf(sequence ->
                 force || sequence.getState().equals(Sequence.State.EXPIRED));

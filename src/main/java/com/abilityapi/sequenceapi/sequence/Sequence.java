@@ -3,21 +3,37 @@ package com.abilityapi.sequenceapi.sequence;
 import com.abilityapi.sequenceapi.action.flag.Flag;
 import com.abilityapi.sequenceapi.origin.Origin;
 
-public interface Sequence<T> {
+public abstract class Sequence<T> {
 
-    boolean applyObserve(final T event, final Origin origin);
+    private State state = State.INACTIVE;
 
-    boolean applySchedule(final Origin origin);
+    public Sequence() {
+        
+    }
 
-    SequenceBlueprint<T> getBlueprint();
+    public boolean applyObserve(final T event, final Origin origin) {
+        return false;
+    }
 
-    Origin getOrigin();
+    public boolean applySchedule(final Origin origin) {
+        return false;
+    }
 
-    Class<? extends T> getNextActionClass();
+    public SequenceBlueprint<T> getBlueprint() {
+        return null;
+    }
 
-    Flag getNextAction();
+    public Origin getOrigin() {
+        return null;
+    }
 
-    State getState();
+    public Class<? extends T> getNextActionClass() {
+        return null;
+    }
+
+    public State getState() {
+        return null;
+    }
 
     enum State {
         ACTIVE(true),
