@@ -26,7 +26,7 @@ public abstract class SequenceManager<T> {
      */
     public void invokeObserver(final T event, final Origin origin) {
         this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
-           if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getNextActionClass())) return true;
+           if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getTrigger())) return true;
 
            return this._invokeObserver(event, sequence, origin);
         });
@@ -45,7 +45,7 @@ public abstract class SequenceManager<T> {
     public void invokeObserverIf(final T event, final Origin origin, final Predicate<Object> predicate) {
         this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
             if (!predicate.test(sequence)) return false;
-            if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getNextActionClass())) return true;
+            if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getTrigger())) return true;
 
             return this._invokeObserver(event, sequence, origin);
         });
@@ -61,7 +61,7 @@ public abstract class SequenceManager<T> {
      */
     public void updateScheduler(final Origin origin) {
         this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
-            if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getNextActionClass())) return true;
+            if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getTrigger())) return true;
 
             return this._invokeScheduler(sequence, origin);
         });
@@ -77,7 +77,7 @@ public abstract class SequenceManager<T> {
     public void updateSchedulerIf(final Origin origin, final Predicate<Object> predicate) {
         this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
             if (predicate.test(sequence)) return false;
-            if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getNextActionClass())) return true;
+            if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getTrigger())) return true;
 
             return this._invokeScheduler(sequence, origin);
         });
@@ -141,7 +141,7 @@ public abstract class SequenceManager<T> {
     private boolean _invokeObserver(final T event, final Sequence<T> sequence, final Origin origin) {
         boolean remove = false;
 
-        if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getNextActionClass())) return true;
+        if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getTrigger())) return true;
 
         // 1. Apply the sequence.
 
