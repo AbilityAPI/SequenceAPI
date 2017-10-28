@@ -3,17 +3,17 @@ package com.abilityapi.sequenceapi.action.type.observe;
 import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.origin.Origin;
-import com.abilityapi.sequenceapi.sequence.Sequence;
 
 public class ObserverAction<T> implements Action {
 
-    private final Class<? extends T> eventClazz;
-
+    private Class<? extends T> eventClass;
     private int delay = 0;
     private int expire = 0;
 
-    public ObserverAction(Class<? extends T> eventClazz) {
-        this.eventClazz = eventClazz;
+    public ObserverAction() {}
+
+    public ObserverAction(Class<? extends T> eventClass) {
+        this.eventClass = eventClass;
     }
 
     @Override
@@ -56,8 +56,12 @@ public class ObserverAction<T> implements Action {
         return false;
     }
 
+    public void setEventClass(Class<? extends T> eventClass) {
+        this.eventClass = eventClass;
+    }
+
     public final Class<? extends T> getEventClass() {
-        return null;
+        return this.eventClass;
     }
 
 }

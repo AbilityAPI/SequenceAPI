@@ -2,7 +2,6 @@ package com.abilityapi.sequenceapi.action;
 
 import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.origin.Origin;
-import com.abilityapi.sequenceapi.sequence.Sequence;
 
 /**
  * Represents an action type.

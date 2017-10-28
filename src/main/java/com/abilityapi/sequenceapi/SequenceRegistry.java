@@ -1,4 +1,4 @@
-package com.abilityapi.sequenceapi.sequence;
+package com.abilityapi.sequenceapi;
 
 import com.abilityapi.sequenceapi.origin.Origin;
 import com.google.common.collect.BiMap;

@@ -1,14 +1,12 @@
-package com.abilityapi.sequenceapi.sequence;
+package com.abilityapi.sequenceapi;
 
 import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
 import com.abilityapi.sequenceapi.origin.Origin;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;

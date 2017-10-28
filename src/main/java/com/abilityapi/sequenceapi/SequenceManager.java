@@ -1,4 +1,4 @@
-package com.abilityapi.sequenceapi.sequence;
+package com.abilityapi.sequenceapi;
 
 import com.abilityapi.sequenceapi.origin.Origin;
 import com.google.common.collect.HashMultimap;
@@ -31,6 +31,8 @@ public abstract class SequenceManager<T> {
            return this._invokeObserver(event, sequence, origin);
         });
 
+        // Creates a new sequence from a blueprint.
+
         this._createBlueprints(event, origin);
     }
 
@@ -49,6 +51,8 @@ public abstract class SequenceManager<T> {
 
             return this._invokeObserver(event, sequence, origin);
         });
+
+        // Creates a new sequence from a blueprint.
 
         this._createBlueprints(event, origin);
     }
@@ -194,6 +198,8 @@ public abstract class SequenceManager<T> {
 
     private void _createBlueprints(final T event, final Origin origin) {
         for (SequenceBlueprint<T> sequenceBlueprint : this.sequenceRegistry) {
+
+            if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequenceBlueprint.getTriggerClass())) continue;
 
             // 1. Check for matching sequence.
 

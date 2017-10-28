@@ -3,7 +3,6 @@ package com.abilityapi.sequenceapi.action.type.schedule;
 import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.origin.Origin;
-import com.abilityapi.sequenceapi.sequence.Sequence;
 
 import java.util.ArrayList;
 import java.util.List;

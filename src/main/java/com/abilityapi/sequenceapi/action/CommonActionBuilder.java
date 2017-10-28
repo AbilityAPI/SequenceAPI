@@ -1,15 +1,24 @@
 package com.abilityapi.sequenceapi.action;
 
+import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
+import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
+import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBuilder;
 
-public interface CommonActionBuilder {
+public interface CommonActionBuilder<T> {
 
-    <T> ObserverActionBuilder observe(Class<T> event);
+    ObserverActionBuilder<T> observe(Class<T> event);
 
-    <T> ScheduleActionBuilder schedule();
+    ObserverActionBuilder<T> observe(ObserverActionBlueprint<T> actionBlueprint);
 
-    <T> ScheduleActionBuilder schedule(ScheduleAction scheduleAction);
+    ObserverActionBuilder<T> observe(ObserverAction<T> action);
+
+    ScheduleActionBuilder schedule();
+
+    ScheduleActionBuilder schedule(ScheduleActionBlueprint actionBlueprint);
+
+    ScheduleActionBuilder schedule(ScheduleAction scheduleAction);
 
 }
