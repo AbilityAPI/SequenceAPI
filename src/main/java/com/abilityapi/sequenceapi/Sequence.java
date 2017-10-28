@@ -8,8 +8,6 @@ import com.abilityapi.sequenceapi.origin.Origin;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class Sequence<T> {
 
@@ -19,8 +17,8 @@ public abstract class Sequence<T> {
     private final Map<ObserverAction<T>, Integer> observerActions = new HashMap<>();
 
     private long lastExecutionTime = System.currentTimeMillis();
-    private AtomicInteger index = new AtomicInteger(0);
-    private AtomicLong ticks = new AtomicLong(0);
+    private int index = 0;
+    private long ticks = 0;
     private State state = State.INACTIVE;
 
     public Sequence(final Origin origin, final SequenceBlueprint<T> sequenceBlueprint,
@@ -41,8 +39,8 @@ public abstract class Sequence<T> {
         if (iterator.hasNext()) {
             ObserverAction<T> action = iterator.next();
 
-            if (this.observerActions.get(action) != this.index.get()) return false;
-            this.index.incrementAndGet();
+            if (this.observerActions.get(action) != this.index) return false;
+            this.index++;
 
             long current = System.currentTimeMillis();
 
@@ -76,7 +74,7 @@ public abstract class Sequence<T> {
 
             this.lastExecutionTime = System.currentTimeMillis();
 
-            if (this.index.get() >= this.observerActions.size() + this.scheduleActions.size()) {
+            if (this.index >= this.observerActions.size() + this.scheduleActions.size()) {
                 this.state = State.FINISHED;
             }
         }
@@ -89,13 +87,13 @@ public abstract class Sequence<T> {
 
         if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
 
-        this.ticks.incrementAndGet();
+        this.ticks++;
 
         if (iterator.hasNext()) {
             ScheduleAction action = iterator.next();
 
-            if (this.scheduleActions.get(action) != this.index.get()) return false;
-            this.index.incrementAndGet();
+            if (this.scheduleActions.get(action) != this.index) return false;
+            this.index++;
 
             long current = System.currentTimeMillis();
 
@@ -113,7 +111,7 @@ public abstract class Sequence<T> {
 
             // 3. Check that the tick is being executed in the period wanted.
 
-            if (this.ticks.get() % action.getPeriod() != 0) {
+            if (this.ticks % action.getPeriod() != 0) {
                 return false;
             }
 
@@ -131,7 +129,7 @@ public abstract class Sequence<T> {
 
             this.lastExecutionTime = System.currentTimeMillis();
 
-            if (this.index.get() >= this.observerActions.size() + this.scheduleActions.size()) {
+            if (this.index >= this.observerActions.size() + this.scheduleActions.size()) {
                 this.state = State.FINISHED;
             }
         }

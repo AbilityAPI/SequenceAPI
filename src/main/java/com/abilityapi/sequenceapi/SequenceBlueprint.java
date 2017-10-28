@@ -2,10 +2,10 @@ package com.abilityapi.sequenceapi;
 
 import com.abilityapi.sequenceapi.origin.Origin;
 
-public interface SequenceBlueprint<T> {
+public abstract class SequenceBlueprint<T> {
 
-    Sequence create(Origin origin);
+    public abstract Sequence create(Origin origin);
 
-    Class<? extends T> getTriggerClass();
+    public abstract Class<? extends T> getTriggerClass();
 
 }

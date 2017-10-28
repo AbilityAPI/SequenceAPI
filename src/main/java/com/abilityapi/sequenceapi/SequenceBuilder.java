@@ -7,15 +7,13 @@ import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBuilder;
-import com.abilityapi.sequenceapi.origin.Origin;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class SequenceBuilder<T> implements CommonActionBuilder<T> {
 
-    private final AtomicInteger index = new AtomicInteger(0);
+    private int index = 0;
     private final Map<ScheduleAction, Integer> scheduleActions = new HashMap<>();
     private final Map<ObserverAction<T>, Integer> observerActions = new HashMap<>();
 
@@ -31,7 +29,7 @@ public abstract class SequenceBuilder<T> implements CommonActionBuilder<T> {
 
     @Override
     public ObserverActionBuilder<T> observe(ObserverAction<T> action) {
-        this.observerActions.put(action, this.index.incrementAndGet());
+        this.observerActions.put(action, ++this.index);
 
         return new ObserverActionBuilder<>();
     }
@@ -48,13 +46,8 @@ public abstract class SequenceBuilder<T> implements CommonActionBuilder<T> {
 
     @Override
     public ScheduleActionBuilder schedule(ScheduleAction action) {
-        this.scheduleActions.put(action, this.index.incrementAndGet());
+        this.scheduleActions.put(action, ++this.index);
 
         return new ScheduleActionBuilder();
     }
-
-    public SequenceBuilder build(Origin origin) {
-        return null;
-    }
-
 }
