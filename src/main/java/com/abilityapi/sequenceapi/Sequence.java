@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public abstract class Sequence<T> {
+public class Sequence<T> {
 
     private final Origin origin;
     private final SequenceBlueprint<T> sequenceBlueprint;

@@ -62,7 +62,12 @@ public class Origin {
         private Builder() {}
 
         private Builder(final Origin origin) {
+            merge(origin);
+        }
+
+        public Builder merge(final Origin origin) {
             origin.origins.forEach(this::custom);
+            return this;
         }
 
         public Builder uniqueKey(final UUID value) {

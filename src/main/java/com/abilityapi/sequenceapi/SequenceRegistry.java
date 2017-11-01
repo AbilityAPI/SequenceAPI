@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
-public abstract class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
+public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
 
     private final BiMap<Class<?>, SequenceBlueprint<T>> registry = HashBiMap.create();
 

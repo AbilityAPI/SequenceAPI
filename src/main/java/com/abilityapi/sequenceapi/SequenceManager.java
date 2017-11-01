@@ -7,7 +7,7 @@ import com.google.common.collect.Multimap;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public abstract class SequenceManager<T> {
+public class SequenceManager<T> {
 
     private final SequenceRegistry<T> sequenceRegistry;
     private final Multimap<UUID, Sequence<T>> sequences = HashMultimap.create();
