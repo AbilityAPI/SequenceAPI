@@ -1,6 +1,6 @@
 package com.abilityapi.sequenceapi;
 
-import com.abilityapi.sequenceapi.action.CommonActionBuilder;
+import com.abilityapi.sequenceapi.action.ActionBuilder;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-public class SequenceBuilder<T> implements CommonActionBuilder<T> {
+public class SequenceBuilder<T> implements ActionBuilder<T> {
 
     private int index = 0;
     private final Map<ScheduleAction, Integer> scheduleActions = new HashMap<>();
@@ -35,24 +35,24 @@ public class SequenceBuilder<T> implements CommonActionBuilder<T> {
     public ObserverActionBuilder<T> observe(ObserverAction<T> action) {
         this.observerActions.put(action, this.index++);
 
-        return new ObserverActionBuilder<>();
+        return new ObserverActionBuilder<>(this, action);
     }
 
     @Override
-    public ScheduleActionBuilder schedule() {
+    public ScheduleActionBuilder<T> schedule() {
         return this.schedule(new ScheduleAction());
     }
 
     @Override
-    public ScheduleActionBuilder schedule(ScheduleActionBlueprint actionBlueprint) {
+    public ScheduleActionBuilder<T> schedule(ScheduleActionBlueprint actionBlueprint) {
         return this.schedule(actionBlueprint.create());
     }
 
     @Override
-    public ScheduleActionBuilder schedule(ScheduleAction action) {
+    public ScheduleActionBuilder<T> schedule(ScheduleAction action) {
         this.scheduleActions.put(action, this.index++);
 
-        return new ScheduleActionBuilder();
+        return new ScheduleActionBuilder<>(this, action);
     }
 
     public SequenceBlueprint<T> build(SequenceContext sequenceContext) {

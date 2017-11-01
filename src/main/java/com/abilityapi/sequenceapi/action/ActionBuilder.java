@@ -7,7 +7,7 @@ import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBuilder;
 
-public interface CommonActionBuilder<T> {
+public interface ActionBuilder<T> {
 
     ObserverActionBuilder<T> observe(Class<T> event);
 
@@ -15,10 +15,10 @@ public interface CommonActionBuilder<T> {
 
     ObserverActionBuilder<T> observe(ObserverAction<T> action);
 
-    ScheduleActionBuilder schedule();
+    ScheduleActionBuilder<T> schedule();
 
-    ScheduleActionBuilder schedule(ScheduleActionBlueprint actionBlueprint);
+    ScheduleActionBuilder<T> schedule(ScheduleActionBlueprint actionBlueprint);
 
-    ScheduleActionBuilder schedule(ScheduleAction scheduleAction);
+    ScheduleActionBuilder<T> schedule(ScheduleAction scheduleAction);
 
 }
