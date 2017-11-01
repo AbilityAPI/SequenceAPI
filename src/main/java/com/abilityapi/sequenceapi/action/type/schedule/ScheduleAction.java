@@ -2,7 +2,7 @@ package com.abilityapi.sequenceapi.action.type.schedule;
 
 import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.action.condition.Condition;
-import com.abilityapi.sequenceapi.origin.Origin;
+import com.abilityapi.sequenceapi.context.SequenceContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,17 +50,17 @@ public class ScheduleAction implements Action {
     }
 
     @Override
-    public boolean apply(Origin origin) {
+    public boolean apply(SequenceContext sequenceContext) {
         return false;
     }
 
     @Override
-    public boolean success(Origin origin) {
+    public boolean success(SequenceContext sequenceContext) {
         return false;
     }
 
     @Override
-    public boolean failure(Origin origin) {
+    public boolean failure(SequenceContext sequenceContext) {
         return false;
     }
 

@@ -1,11 +1,14 @@
 package com.abilityapi.sequenceapi;
 
-import com.abilityapi.sequenceapi.origin.Origin;
+import com.abilityapi.sequenceapi.context.SequenceContext;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import java.util.UUID;
 import java.util.function.Predicate;
+
+import static com.abilityapi.sequenceapi.util.SequencePreconditions.checkOriginType;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class SequenceManager<T> {
 
@@ -13,102 +16,124 @@ public class SequenceManager<T> {
     private final Multimap<UUID, Sequence<T>> sequences = HashMultimap.create();
     private final Multimap<UUID, Class<? extends T>> blockedSequences = HashMultimap.create();
 
-    public SequenceManager(SequenceRegistry<T> sequenceRegistry) {
+    public SequenceManager(final SequenceRegistry<T> sequenceRegistry) {
         this.sequenceRegistry = sequenceRegistry;
     }
 
     /**
      * Invokes the observer check with the provided event
-     * and {@link Origin}.
+     * and {@link SequenceContext}.
      *
      * @param event the event
-     * @param origin the origin
+     * @param sequenceContext the sequenceContext
      */
-    public void invokeObserver(final T event, final Origin origin) {
-        this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
-           if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getTrigger())) return true;
+    public void invokeObserver(final T event, final SequenceContext sequenceContext) {
+        checkNotNull(event);
+        checkNotNull(sequenceContext);
+        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
 
-           return this._invokeObserver(event, sequence, origin);
+        this.sequences.get((UUID) sequenceContext.getId()).removeIf(sequence -> {
+           if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
+
+           return this._invokeObserver(event, sequence, sequenceContext);
         });
 
         // Creates a new sequence from a blueprint.
 
-        this._createBlueprints(event, origin);
+        this._createBlueprints(event, sequenceContext);
     }
 
     /**
      * Invokes the observer check with the provided event
-     * and {@link Origin} if the predicate returns true.
+     * and {@link SequenceContext} if the predicate returns true.
      *
      * @param event the event
-     * @param origin the origin
+     * @param sequenceContext the sequenceContext
      * @param predicate the predicate
      */
-    public void invokeObserverIf(final T event, final Origin origin, final Predicate<Object> predicate) {
-        this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
-            if (!predicate.test(sequence)) return false;
-            if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getTrigger())) return true;
+    public void invokeObserverIf(final T event, final SequenceContext sequenceContext, final Predicate<Object> predicate) {
+        checkNotNull(event);
+        checkNotNull(sequenceContext);
+        checkNotNull(predicate);
+        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
 
-            return this._invokeObserver(event, sequence, origin);
+        this.sequences.get((UUID) sequenceContext.getId()).removeIf(sequence -> {
+            if (!predicate.test(sequence)) return false;
+            if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
+
+            return this._invokeObserver(event, sequence, sequenceContext);
         });
 
         // Creates a new sequence from a blueprint.
 
-        this._createBlueprints(event, origin);
+        this._createBlueprints(event, sequenceContext);
     }
 
     /**
      * Invokes the scheduler update with the provided
-     * {@link Origin}.
+     * {@link SequenceContext}.
      *
-     * @param origin the origin
+     * @param sequenceContext the sequenceContext
      */
-    public void updateScheduler(final Origin origin) {
-        this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
-            if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getTrigger())) return true;
+    public void updateScheduler(final SequenceContext sequenceContext) {
+        checkNotNull(sequenceContext);
+        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
 
-            return this._invokeScheduler(sequence, origin);
+        this.sequences.get((UUID) sequenceContext.getId()).removeIf(sequence -> {
+            if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
+
+            return this._invokeScheduler(sequence, sequenceContext);
         });
     }
 
     /**
      * Invokes the scheduler update with the provided
-     * {@link Origin} if the predicate returns true.
+     * {@link SequenceContext} if the predicate returns true.
      *
-     * @param origin the origin
+     * @param sequenceContext the sequenceContext
      * @param predicate the predicate
      */
-    public void updateSchedulerIf(final Origin origin, final Predicate<Object> predicate) {
-        this.sequences.get(origin.getUniqueKey()).removeIf(sequence -> {
-            if (predicate.test(sequence)) return false;
-            if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getTrigger())) return true;
+    public void updateSchedulerIf(final SequenceContext sequenceContext, final Predicate<Object> predicate) {
+        checkNotNull(sequenceContext);
+        checkNotNull(predicate);
+        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
 
-            return this._invokeScheduler(sequence, origin);
+        this.sequences.get((UUID) sequenceContext.getId()).removeIf(sequence -> {
+            if (predicate.test(sequence)) return false;
+            if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
+
+            return this._invokeScheduler(sequence, sequenceContext);
         });
     }
 
     /**
-     * Adds the trigger class from the {@link Origin} root
+     * Adds the trigger class from the {@link SequenceContext} root
      * to the block list, which is removed on the next invocation.
      *
-     * @param origin the origin
+     * @param sequenceContext the sequenceContext
      */
-    public void block(final Origin origin) {
-        if (this.blockedSequences.containsEntry(origin.getUniqueKey(), origin.getRoot().getClass())) return;
+    public void block(final SequenceContext sequenceContext) {
+        checkNotNull(sequenceContext);
+        checkNotNull(sequenceContext.getRoot());
+        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
 
-        this.blockedSequences.put(origin.getUniqueKey(), (Class<? extends T>) origin.getRoot().getClass());
+        if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceContext.getRoot().getClass())) return;
+        this.blockedSequences.put((UUID) sequenceContext.getId(), (Class<? extends T>) sequenceContext.getRoot().getClass());
     }
 
     /**
      * Removes the trigger class found in the
-     * {@link Origin} root in the block list.
+     * {@link SequenceContext} root in the block list.
      *
-     * @param origin the origin
+     * @param sequenceContext the sequenceContext
      */
-    public void unblock(final Origin origin) {
-        if (!this.blockedSequences.containsEntry(origin.getUniqueKey(), origin.getRoot().getClass())) return;
+    public void unblock(final SequenceContext sequenceContext) {
+        checkNotNull(sequenceContext);
+        checkNotNull(sequenceContext.getRoot());
+        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
 
-        this.blockedSequences.put(origin.getUniqueKey(), (Class<? extends T>) origin.getRoot().getClass());
+        if (!this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceContext.getRoot().getClass())) return;
+        this.blockedSequences.put((UUID) sequenceContext.getId(), (Class<? extends T>) sequenceContext.getRoot().getClass());
     }
 
     /**
@@ -122,11 +147,11 @@ public class SequenceManager<T> {
      * @param force false to remove safely, true to remove with force
      */
     public void clean(boolean force) {
-        this.sequences.keySet().forEach(uuid -> this.clean(Origin.builder().uniqueKey(uuid).build(), force));
+        this.sequences.keySet().forEach(uuid -> this.clean(SequenceContext.builder().id(uuid).build(), force));
     }
 
     /**
-     * Removes an {@link Origin}s unique id specific
+     * Removes an {@link SequenceContext}s unique id specific
      * {@link Sequence} from the running list if it has
      * expired or cancelled.
      *
@@ -134,22 +159,30 @@ public class SequenceManager<T> {
      * running sequences regardless whether it has been
      * cancelled or expired.</p>
      *
-     * @param origin the origin
+     * @param sequenceContext the sequenceContext
      * @param force false to remove safely, true to remove with force
      */
-    public void clean(final Origin origin, boolean force) {
-        this.sequences.get(origin.getUniqueKey()).removeIf(sequence ->
+    public void clean(final SequenceContext sequenceContext, boolean force) {
+        checkNotNull(sequenceContext);
+        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
+
+        this.sequences.get((UUID) sequenceContext.getId()).removeIf(sequence ->
                 force || sequence.getState().equals(Sequence.State.EXPIRED));
     }
 
-    private boolean _invokeObserver(final T event, final Sequence<T> sequence, final Origin origin) {
+    private boolean _invokeObserver(final T event, final Sequence<T> sequence, final SequenceContext sequenceContext) {
+        checkNotNull(event);
+        checkNotNull(sequence);
+        checkNotNull(sequenceContext);
+        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
+
         boolean remove = false;
 
-        if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequence.getTrigger())) return true;
+        if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
 
         // 1. Apply the sequence.
 
-        sequence.applyObserve(event, origin);
+        sequence.applyObserve(event, sequenceContext);
 
         // 2. Check if the sequence is cancelled, or is expired.
 
@@ -170,12 +203,16 @@ public class SequenceManager<T> {
         return remove;
     }
 
-    private boolean _invokeScheduler(final Sequence<T> sequence, final Origin origin) {
+    private boolean _invokeScheduler(final Sequence<T> sequence, final SequenceContext sequenceContext) {
+        checkNotNull(sequence);
+        checkNotNull(sequenceContext);
+        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
+
         boolean remove = false;
 
         // 1. Apply the sequence.
 
-        sequence.applySchedule(origin);
+        sequence.applySchedule(sequenceContext);
 
         // 2. Check if the sequence is cancelled, or is expired.
 
@@ -196,26 +233,31 @@ public class SequenceManager<T> {
         return remove;
     }
 
-    private void _createBlueprints(final T event, final Origin origin) {
+    private void _createBlueprints(final T event, final SequenceContext sequenceContext) {
+        checkNotNull(event);
+        checkNotNull(sequenceContext);
+        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
+
         for (SequenceBlueprint<T> sequenceBlueprint : this.sequenceRegistry) {
 
-            if (this.blockedSequences.containsEntry(origin.getUniqueKey(), sequenceBlueprint.getTriggerClass())) continue;
+            if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceBlueprint.getTriggerClass())) continue;
 
             // 1. Check for matching sequence.
 
-            if (this.sequences.get(origin.getUniqueKey()).stream()
+            if (this.sequences.get((UUID) sequenceContext.getId()).stream()
                     .anyMatch(playerSequence -> playerSequence.getBlueprint()
                     .equals(sequenceBlueprint))) continue;
+
             // 2. Apply the sequence for the first time to check the observer or leave it.
 
-            Sequence<T> sequence = sequenceBlueprint.create(origin);
+            Sequence<T> sequence = sequenceBlueprint.create(sequenceContext);
 
-            if (sequence.applyObserve(event, origin)) {
+            if (sequence.applyObserve(event, sequenceContext)) {
                 if (!sequence.getState().isSafe() || sequence.getState().equals(Sequence.State.FINISHED)) {
                     continue;
                 }
 
-                this.sequences.put(origin.getUniqueKey(), sequence);
+                this.sequences.put((UUID) sequenceContext.getId(), sequence);
             }
         }
     }

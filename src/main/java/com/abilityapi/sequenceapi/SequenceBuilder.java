@@ -7,7 +7,7 @@ import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBuilder;
-import com.abilityapi.sequenceapi.origin.Origin;
+import com.abilityapi.sequenceapi.context.SequenceContext;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
@@ -55,30 +55,28 @@ public class SequenceBuilder<T> implements CommonActionBuilder<T> {
         return new ScheduleActionBuilder();
     }
 
-    public SequenceBlueprint<T> build(Origin origin) {
+    public SequenceBlueprint<T> build(SequenceContext sequenceContext) {
         return new SequenceBlueprint<T>() {
             @Override
-            public Sequence create(Origin createOrigin) {
-                final Origin newOrigin = Origin.from(createOrigin).merge(origin).build();
+            public Sequence create(SequenceContext createSequenceContext) {
+                final SequenceContext.Builder newOrigin = SequenceContext.from(createSequenceContext);
+                if (sequenceContext != null) newOrigin.merge(sequenceContext);
 
-                return new Sequence<>(newOrigin, this, scheduleActions, this.validateSequence());
+                return new Sequence<>(newOrigin.build(), this, scheduleActions, this.validateSequence());
             }
 
             @Override
             public Class<? extends T> getTriggerClass() {
-                if (observerActions.isEmpty()) return null;
-                final BiMap<ObserverAction<T>, Integer> observers = this.validateSequence();
+                final BiMap<Integer, ObserverAction<T>> observers = HashBiMap.create(validateSequence()).inverse();
 
-                return observers.inverse().get(1).getEventClass();
+                return observers.get(0).getEventClass();
             }
 
-            private BiMap<ObserverAction<T>, Integer> validateSequence() throws NoSuchElementException {
-                final BiMap<ObserverAction<T>, Integer> observers = HashBiMap.create(observerActions);
-
-                if (observers.isEmpty() || !observers.containsValue(0)) throw
+            private Map<ObserverAction<T>, Integer> validateSequence() throws NoSuchElementException {
+                if (observerActions.isEmpty() || !observerActions.containsValue(0)) throw
                         new NoSuchElementException("Sequence could not be established without an initial observer.");
 
-                return observers;
+                return observerActions;
             }
         };
     }

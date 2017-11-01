@@ -1,7 +1,7 @@
 package com.abilityapi.sequenceapi.action;
 
 import com.abilityapi.sequenceapi.action.condition.Condition;
-import com.abilityapi.sequenceapi.origin.Origin;
+import com.abilityapi.sequenceapi.context.SequenceContext;
 
 /**
  * Represents an action type.
@@ -18,10 +18,10 @@ public interface Action {
 
     int getExpire();
 
-    boolean apply(final Origin origin);
+    boolean apply(final SequenceContext sequenceContext);
 
-    boolean success(final Origin origin);
+    boolean success(final SequenceContext sequenceContext);
 
-    boolean failure(final Origin origin);
+    boolean failure(final SequenceContext sequenceContext);
 
 }

@@ -1,13 +1,13 @@
 package com.abilityapi.sequenceapi.action.condition;
 
-import com.abilityapi.sequenceapi.origin.Origin;
+import com.abilityapi.sequenceapi.context.SequenceContext;
 
 import java.util.Optional;
 
 public class ConditionResult {
 
     private boolean accept = false;
-    private Origin origin = null;
+    private SequenceContext sequenceContext = null;
 
     public ConditionResult() {}
 
@@ -19,12 +19,12 @@ public class ConditionResult {
         this.accept = accept;
     }
 
-    public Optional<Origin> getOrigin() {
-        return Optional.ofNullable(this.origin);
+    public Optional<SequenceContext> getSequenceContext() {
+        return Optional.ofNullable(this.sequenceContext);
     }
 
-    public void setOrigin(Origin origin) {
-        this.origin = origin;
+    public void setSequenceContext(SequenceContext sequenceContext) {
+        this.sequenceContext = sequenceContext;
     }
 
 }

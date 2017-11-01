@@ -1,7 +1,7 @@
 package com.abilityapi.sequenceapi.action.condition;
 
 import com.abilityapi.sequenceapi.action.Action;
-import com.abilityapi.sequenceapi.origin.Origin;
+import com.abilityapi.sequenceapi.context.SequenceContext;
 
 /**
  * Supplier for the result of this condition with
@@ -12,11 +12,11 @@ public interface ConditionSupplier {
 
     /**
      * Returns the {@link ConditionResult} of applying this {@link Action}
-     * condition with the {@link Origin} context.
+     * condition with the {@link SequenceContext} context.
      *
-     * @param origin the origin
+     * @param sequenceContext the sequenceContext
      * @return the condition result
      */
-    ConditionResult apply(final Origin origin);
+    ConditionResult apply(final SequenceContext sequenceContext);
 
 }

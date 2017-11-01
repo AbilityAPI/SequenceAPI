@@ -1,6 +1,5 @@
 package com.abilityapi.sequenceapi;
 
-import com.abilityapi.sequenceapi.origin.Origin;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
@@ -15,21 +14,14 @@ public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
     /**
      * Puts the {@link SequenceBlueprint} into this registry.
      *
-     * <p>Default implementation takes into account the {@link Origin#OWNER}
-     * with the {@link Origin#ROOT} set as the blueprint if it does not exist
-     * already.</p>
-     *
-     * @param origin the origin
      * @param sequenceBlueprint the sequence blueprint
-     * @return the updated origin, or the original if it did not get added
+     * @return true if the blueprint was added, false if it was not
      */
-    public Origin put(final Origin origin, final SequenceBlueprint<T> sequenceBlueprint) {
-        final Origin updatedOrigin = Origin.from(origin).root(sequenceBlueprint).build();
-
-        if (this.registry.containsKey(sequenceBlueprint.getClass())) return updatedOrigin;
+    public boolean put(final SequenceBlueprint<T> sequenceBlueprint) {
+        if (this.registry.containsKey(sequenceBlueprint.getClass())) return false;
         this.registry.put(sequenceBlueprint.getClass(), sequenceBlueprint);
 
-        return updatedOrigin;
+        return true;
     }
 
     /**

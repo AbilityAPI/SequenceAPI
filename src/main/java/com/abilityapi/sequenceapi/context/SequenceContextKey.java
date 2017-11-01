@@ -1,17 +1,17 @@
-package com.abilityapi.sequenceapi.origin;
+package com.abilityapi.sequenceapi.context;
 
 import java.util.Objects;
 
-public class OriginKey {
+public class SequenceContextKey {
 
-    public static OriginKey of(final String id, final Object defaultValue) {
-        return new OriginKey(id, defaultValue);
+    public static SequenceContextKey of(final String id, final Object defaultValue) {
+        return new SequenceContextKey(id, defaultValue);
     }
 
     private final String id;
     private final Object defaultValue;
 
-    public OriginKey(final String id, Object defaultValue) {
+    public SequenceContextKey(final String id, Object defaultValue) {
         this.id = id;
         this.defaultValue = defaultValue;
     }
@@ -37,7 +37,7 @@ public class OriginKey {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        final OriginKey other = (OriginKey) object;
+        final SequenceContextKey other = (SequenceContextKey) object;
         return Objects.equals(this.id, other.id)
                 && Objects.equals(this.defaultValue, other.getDefaultValue());
     }
