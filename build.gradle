@@ -1,25 +1,14 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'net.sf.proguard:proguard-gradle:5.3.3'
-    }
-}
-
 plugins {
     id 'java'
     id 'idea'
     id 'eclipse'
-    id 'ninja.miserable.blossom' version '1.0.1'
-    id 'com.github.johnrengelman.shadow' version '2.0.0'
 }
 
 defaultTasks 'build'
 
-group = pluginGroup
-version = pluginVersion
-archivesBaseName = pluginName
+group = apiGroup
+version = apiVersion
+archivesBaseName = apiName
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -30,14 +19,6 @@ repositories {
 
 dependencies {
     compileOnly 'com.google.guava:guava:21.0'
-}
-
-blossom {
-    def location = 'src/main/java/com/abilityapi/sequenceapi/Constants.java'
-
-    replaceToken '@id@', archivesBaseName, location
-    replaceToken '@name@', 'SequenceAPI', location
-    replaceToken '@version@', version, location
 }
 
 
@@ -51,14 +32,4 @@ jar {
     classifier = ''
 }
 
-shadowJar {
-    classifier = 'shade'
-
-    exclude 'GradleStart**'
-    exclude '.cache'
-    exclude 'LICENSE.txt'
-    exclude 'com/me4502/modularframework/ModularFramework.class'
-}
-
 build.dependsOn(jar)
-build.dependsOn(shadowJar)

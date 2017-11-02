@@ -2,7 +2,11 @@ package com.abilityapi.sequenceapi.context;
 
 import com.google.common.collect.ImmutableMap;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class SequenceContext {
 

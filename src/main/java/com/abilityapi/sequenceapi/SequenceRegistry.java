@@ -7,6 +7,11 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Represents the registry for {@link SequenceBlueprint}s.
+ *
+ * @param <T> the event type
+ */
 public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
 
     private final BiMap<Class<?>, SequenceBlueprint<T>> registry = HashBiMap.create();

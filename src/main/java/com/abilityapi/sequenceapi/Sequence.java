@@ -9,6 +9,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Represents an order of {@link Action}s
+ * and a means of manipulating them to produce
+ * a result.
+ *
+ * @param <T> the event type
+ */
 public class Sequence<T> {
 
     private final SequenceContext sequenceContext;
@@ -142,20 +149,20 @@ public class Sequence<T> {
         return false;
     }
 
-    public SequenceBlueprint<T> getBlueprint() {
-        return null;
+    public final SequenceBlueprint<T> getBlueprint() {
+        return this.sequenceBlueprint;
     }
 
-    public SequenceContext getSequenceContext() {
-        return null;
+    public final SequenceContext getSequenceContext() {
+        return this.sequenceContext;
     }
 
-    public Class<? extends T> getTrigger() {
-        return null;
+    public final Class<? extends T> getTrigger() {
+        return this.sequenceBlueprint.getTrigger();
     }
 
-    public State getState() {
-        return null;
+    public final State getState() {
+        return this.state;
     }
 
     public enum State {

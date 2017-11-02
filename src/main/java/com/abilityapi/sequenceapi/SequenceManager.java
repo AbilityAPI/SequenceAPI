@@ -10,6 +10,13 @@ import java.util.function.Predicate;
 import static com.abilityapi.sequenceapi.util.SequencePreconditions.checkOriginType;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * Represents a way to manage the life cycle of
+ * an {@link Sequence} provided by the {@link SequenceRegistry}
+ * as a {@link SequenceBlueprint}.
+ *
+ * @param <T> the event type
+ */
 public class SequenceManager<T> {
 
     private final SequenceRegistry<T> sequenceRegistry;
@@ -24,8 +31,12 @@ public class SequenceManager<T> {
      * Invokes the observer check with the provided event
      * and {@link SequenceContext}.
      *
+     * <p>The {@link SequenceContext} must contain a unique
+     * {@link SequenceContext#ID} to provide ownership over
+     * a running {@link Sequence}.</p>
+     *
      * @param event the event
-     * @param sequenceContext the sequenceContext
+     * @param sequenceContext the sequence context
      */
     public void invokeObserver(final T event, final SequenceContext sequenceContext) {
         checkNotNull(event);
@@ -47,8 +58,12 @@ public class SequenceManager<T> {
      * Invokes the observer check with the provided event
      * and {@link SequenceContext} if the predicate returns true.
      *
+     * <p>The {@link SequenceContext} must contain a unique
+     * {@link SequenceContext#ID} to provide ownership over
+     * a running {@link Sequence}.</p>
+     *
      * @param event the event
-     * @param sequenceContext the sequenceContext
+     * @param sequenceContext the sequence context
      * @param predicate the predicate
      */
     public void invokeObserverIf(final T event, final SequenceContext sequenceContext, final Predicate<Object> predicate) {
@@ -73,7 +88,11 @@ public class SequenceManager<T> {
      * Invokes the scheduler update with the provided
      * {@link SequenceContext}.
      *
-     * @param sequenceContext the sequenceContext
+     * <p>The {@link SequenceContext} must contain a unique
+     * {@link SequenceContext#ID} to provide ownership over
+     * a running {@link Sequence}.</p>
+     *
+     * @param sequenceContext the sequence context
      */
     public void updateScheduler(final SequenceContext sequenceContext) {
         checkNotNull(sequenceContext);
@@ -90,7 +109,11 @@ public class SequenceManager<T> {
      * Invokes the scheduler update with the provided
      * {@link SequenceContext} if the predicate returns true.
      *
-     * @param sequenceContext the sequenceContext
+     * <p>The {@link SequenceContext} must contain a unique
+     * {@link SequenceContext#ID} to provide ownership over
+     * a running {@link Sequence}.</p>
+     *
+     * @param sequenceContext the sequence context
      * @param predicate the predicate
      */
     public void updateSchedulerIf(final SequenceContext sequenceContext, final Predicate<Object> predicate) {
@@ -110,30 +133,44 @@ public class SequenceManager<T> {
      * Adds the trigger class from the {@link SequenceContext} root
      * to the block list, which is removed on the next invocation.
      *
-     * @param sequenceContext the sequenceContext
+     * <p>The {@link SequenceContext} must contain a unique
+     * {@link SequenceContext#ID} to provide ownership over
+     * a running {@link Sequence}.
+     *
+     * It must also contain a {@link SequenceContext#ROOT} that
+     * is an event class trigger of {@link T} to filter.</p>
+     *
+     * @param sequenceContext the sequence context
      */
     public void block(final SequenceContext sequenceContext) {
         checkNotNull(sequenceContext);
-        checkNotNull(sequenceContext.getRoot());
+        checkOriginType(sequenceContext, SequenceContext.ROOT, Class.class);
         checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
 
-        if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceContext.getRoot().getClass())) return;
-        this.blockedSequences.put((UUID) sequenceContext.getId(), (Class<? extends T>) sequenceContext.getRoot().getClass());
+        if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceContext.getRoot())) return;
+        this.blockedSequences.put((UUID) sequenceContext.getId(), (Class<? extends T>) sequenceContext.getRoot());
     }
 
     /**
      * Removes the trigger class found in the
      * {@link SequenceContext} root in the block list.
      *
-     * @param sequenceContext the sequenceContext
+     * <p>The {@link SequenceContext} must contain a unique
+     * {@link SequenceContext#ID} to provide ownership over
+     * a running {@link Sequence}.
+     *
+     * It must also contain a {@link SequenceContext#ROOT} that
+     * is an event class trigger of {@link T} to filter.</p>
+     *
+     * @param sequenceContext the sequence context
      */
     public void unblock(final SequenceContext sequenceContext) {
         checkNotNull(sequenceContext);
-        checkNotNull(sequenceContext.getRoot());
+        checkOriginType(sequenceContext, SequenceContext.ROOT, Class.class);
         checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
 
-        if (!this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceContext.getRoot().getClass())) return;
-        this.blockedSequences.put((UUID) sequenceContext.getId(), (Class<? extends T>) sequenceContext.getRoot().getClass());
+        if (!this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceContext.getRoot())) return;
+        this.blockedSequences.put((UUID) sequenceContext.getId(), (Class<? extends T>) sequenceContext.getRoot());
     }
 
     /**
@@ -151,15 +188,18 @@ public class SequenceManager<T> {
     }
 
     /**
-     * Removes an {@link SequenceContext}s unique id specific
-     * {@link Sequence} from the running list if it has
-     * expired or cancelled.
+     * Removes a specific {@link Sequence} from the running
+     * list if it has expired or cancelled.
      *
      * <p>If force is set to true, it will remove all of the
      * running sequences regardless whether it has been
      * cancelled or expired.</p>
      *
-     * @param sequenceContext the sequenceContext
+     * <p>The {@link SequenceContext} must contain a unique
+     * {@link SequenceContext#ID} to provide ownership over
+     * a running {@link Sequence}.</p>
+     *
+     * @param sequenceContext the sequence context
      * @param force false to remove safely, true to remove with force
      */
     public void clean(final SequenceContext sequenceContext, boolean force) {
@@ -171,11 +211,6 @@ public class SequenceManager<T> {
     }
 
     private boolean _invokeObserver(final T event, final Sequence<T> sequence, final SequenceContext sequenceContext) {
-        checkNotNull(event);
-        checkNotNull(sequence);
-        checkNotNull(sequenceContext);
-        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
-
         boolean remove = false;
 
         if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
@@ -204,10 +239,6 @@ public class SequenceManager<T> {
     }
 
     private boolean _invokeScheduler(final Sequence<T> sequence, final SequenceContext sequenceContext) {
-        checkNotNull(sequence);
-        checkNotNull(sequenceContext);
-        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
-
         boolean remove = false;
 
         // 1. Apply the sequence.
@@ -234,13 +265,9 @@ public class SequenceManager<T> {
     }
 
     private void _createBlueprints(final T event, final SequenceContext sequenceContext) {
-        checkNotNull(event);
-        checkNotNull(sequenceContext);
-        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
-
         for (SequenceBlueprint<T> sequenceBlueprint : this.sequenceRegistry) {
 
-            if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceBlueprint.getTriggerClass())) continue;
+            if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceBlueprint.getTrigger())) continue;
 
             // 1. Check for matching sequence.
 
