@@ -11,12 +11,12 @@ import com.abilityapi.sequenceapi.context.SequenceContext;
 public interface ConditionSupplier {
 
     /**
-     * Returns the {@link ConditionResult} of applying this {@link Action}
+     * Returns the result of applying this {@link Action}
      * condition with the {@link SequenceContext} context.
      *
      * @param sequenceContext the sequenceContext
      * @return the condition result
      */
-    ConditionResult apply(final SequenceContext sequenceContext);
+    boolean apply(final SequenceContext sequenceContext);
 
 }

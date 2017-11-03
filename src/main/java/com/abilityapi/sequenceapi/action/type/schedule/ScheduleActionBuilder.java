@@ -19,21 +19,45 @@ public class ScheduleActionBuilder<T> implements ActionBuilder<T> {
         this.action = action;
     }
 
+    /**
+     * Adds a {@link Condition} to this {@link ScheduleAction}.
+     *
+     * @param condition the condition
+     * @return this builder
+     */
     public ScheduleActionBuilder<T> condition(final Condition condition) {
         this.action.addCondition(condition);
         return this;
     }
 
+    /**
+     * Sets a delay to this {@link ScheduleAction}.
+     *
+     * @param value the period of delay
+     * @return this builder
+     */
     public ScheduleActionBuilder<T> delay(int value) {
         this.action.setDelay(value);
         return this;
     }
 
+    /**
+     * Sets an expire to this {@link ScheduleAction}.
+     *
+     * @param value the period to expire
+     * @return this builder
+     */
     public ScheduleActionBuilder<T> expire(int value) {
         this.action.setExpire(value);
         return this;
     }
 
+    /**
+     * Sets a period to this {@link ScheduleAction}.
+     *
+     * @param value the period of execution
+     * @return this builder
+     */
     public ScheduleActionBuilder<T> period(int value) {
         this.action.setPeriod(value);
         return this;

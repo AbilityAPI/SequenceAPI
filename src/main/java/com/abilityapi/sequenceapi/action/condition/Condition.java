@@ -1,14 +1,28 @@
 package com.abilityapi.sequenceapi.action.condition;
 
+/**
+ * Represents a condition that can be assigned a
+ * {@link ConditionType}.
+ */
 public abstract class Condition implements ConditionSupplier {
 
-    private ConditionTypes conditionType = ConditionTypes.UNDEFINED;
+    private ConditionType conditionType = ConditionType.UNDEFINED;
 
-    public void setType(ConditionTypes type) {
+    /**
+     * Sets the {@link ConditionType} for this.
+     *
+     * @param type the condition type
+     */
+    public void setType(ConditionType type) {
         this.conditionType = type;
     }
 
-    public ConditionTypes getType() {
+    /**
+     * Returns the {@link ConditionType} for this.
+     *
+     * @return the condition type
+     */
+    public ConditionType getType() {
         return this.conditionType;
     }
 
