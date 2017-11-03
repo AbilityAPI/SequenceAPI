@@ -4,7 +4,7 @@ import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.context.SequenceContext;
 
 /**
- * Represents an action type.
+ * Represents an action.
  */
 public interface Action {
 

@@ -5,7 +5,6 @@ import com.abilityapi.sequenceapi.SequenceBuilder;
 import com.abilityapi.sequenceapi.action.ActionBuilder;
 import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
-import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBuilder;
 import com.abilityapi.sequenceapi.context.SequenceContext;
 
@@ -52,11 +51,6 @@ public class ObserverActionBuilder<T> implements ActionBuilder<T> {
     @Override
     public ScheduleActionBuilder<T> schedule() {
         return this.schedule(new ScheduleAction());
-    }
-
-    @Override
-    public ScheduleActionBuilder<T> schedule(ScheduleActionBlueprint actionBlueprint) {
-        return this.schedule(actionBlueprint.create());
     }
 
     @Override

@@ -125,7 +125,7 @@ public class Sequence<T> {
             // 3. Fail the action if it being executed after the expire.
 
             if (this.lastExecutionTime + ((action.getExpire() / 20) * 1000) < current) {
-                if (action.getRepeat() != 0) {
+                if (action.getRepeats() != 0) {
                     iterator.remove();
 
                     return this.succeed(action, sequenceContext);

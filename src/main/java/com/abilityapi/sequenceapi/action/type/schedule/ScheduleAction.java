@@ -52,7 +52,7 @@ public class ScheduleAction implements Action {
         return this.period;
     }
 
-    public int getRepeat() {
+    public int getRepeats() {
         return this.repeat;
     }
 

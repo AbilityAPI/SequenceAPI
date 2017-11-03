@@ -60,11 +60,6 @@ public class ScheduleActionBuilder<T> implements ActionBuilder<T> {
     }
 
     @Override
-    public ScheduleActionBuilder<T> schedule(ScheduleActionBlueprint actionBlueprint) {
-        return this.schedule(actionBlueprint.create());
-    }
-
-    @Override
     public ScheduleActionBuilder<T> schedule(ScheduleAction scheduleAction) {
         return this.sequenceBuilder.schedule(scheduleAction);
     }

@@ -5,7 +5,6 @@ import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
-import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBuilder;
 import com.abilityapi.sequenceapi.context.SequenceContext;
 import com.google.common.collect.BiMap;
@@ -46,11 +45,6 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
     @Override
     public final ScheduleActionBuilder<T> schedule() {
         return this.schedule(new ScheduleAction());
-    }
-
-    @Override
-    public final ScheduleActionBuilder<T> schedule(final ScheduleActionBlueprint actionBlueprint) {
-        return this.schedule(actionBlueprint.create());
     }
 
     @Override
