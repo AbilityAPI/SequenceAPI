@@ -2,6 +2,8 @@ package com.abilityapi.sequenceapi.action.type.schedule;
 
 import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.action.condition.Condition;
+import com.abilityapi.sequenceapi.action.condition.ConditionResult;
+import com.abilityapi.sequenceapi.action.condition.ConditionTypes;
 import com.abilityapi.sequenceapi.context.SequenceContext;
 
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ public class ScheduleAction implements Action {
     private int delay = 0;
     private int expire = 0;
     private int period = 0;
+    private int repeat = 0;
 
     public ScheduleAction() {}
 
@@ -49,19 +52,44 @@ public class ScheduleAction implements Action {
         return this.period;
     }
 
+    public int getRepeat() {
+        return this.repeat;
+    }
+
     @Override
     public boolean apply(SequenceContext sequenceContext) {
-        return false;
+        boolean applyResult = this.conditions.stream()
+                .filter(condition -> condition.getType().equals(ConditionTypes.UNDEFINED))
+                .noneMatch(condition -> {
+                    ConditionResult result = condition.apply(sequenceContext);
+
+                    return !result.isAccepted();
+                });
+
+        if (applyResult && this.period != 0) this.repeat++;
+        return applyResult;
     }
 
     @Override
     public boolean success(SequenceContext sequenceContext) {
-        return false;
+        return this.conditions.stream()
+                .filter(condition -> condition.getType().equals(ConditionTypes.SUCCESS))
+                .noneMatch(condition -> {
+                    ConditionResult result = condition.apply(sequenceContext);
+
+                    return !result.isAccepted();
+                });
     }
 
     @Override
     public boolean failure(SequenceContext sequenceContext) {
-        return false;
+        return this.conditions.stream()
+                .filter(condition -> condition.getType().equals(ConditionTypes.FAIL))
+                .anyMatch(condition -> {
+                    ConditionResult result = condition.apply(sequenceContext);
+
+                    return result.isAccepted();
+                });
     }
 
 }

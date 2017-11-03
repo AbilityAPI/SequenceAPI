@@ -23,9 +23,9 @@ public class Sequence<T> {
     private final Map<ScheduleAction, Integer> scheduleActions = new HashMap<>();
     private final Map<ObserverAction<T>, Integer> observerActions = new HashMap<>();
 
-    private long lastExecutionTime = System.currentTimeMillis();
     private int index = 0;
     private long ticks = 0;
+    private long lastExecutionTime = System.currentTimeMillis();
     private State state = State.INACTIVE;
 
     public Sequence(final SequenceContext sequenceContext, final SequenceBlueprint<T> sequenceBlueprint,
@@ -38,6 +38,14 @@ public class Sequence<T> {
         this.observerActions.putAll(observerActions);
     }
 
+    /**
+     * Applies the next {@link ObserverAction} in the {@link Sequence}
+     * with an appropriate {@link T} and {@link SequenceContext}.
+     *
+     * @param event the event
+     * @param sequenceContext the sequence context
+     * @return true if the action was successful and false if it was not
+     */
     public boolean applyObserve(final T event, final SequenceContext sequenceContext) {
         Iterator<ObserverAction<T>> iterator = this.observerActions.keySet().iterator();
 
@@ -77,18 +85,19 @@ public class Sequence<T> {
 
             iterator.remove();
 
-            action.success(sequenceContext);
-
-            this.lastExecutionTime = System.currentTimeMillis();
-
-            if (this.index >= this.observerActions.size() + this.scheduleActions.size()) {
-                this.state = State.FINISHED;
-            }
+            return this.succeed(action, sequenceContext);
         }
 
         return true;
     }
 
+    /**
+     * Applies the next {@link ScheduleAction} in the {@link Sequence}
+     * with an appropriate {@link SequenceContext}.
+     *
+     * @param sequenceContext the sequence context
+     * @return true if the action was successful and false if it was not
+     */
     public boolean applySchedule(final SequenceContext sequenceContext) {
         Iterator<ScheduleAction> iterator = this.scheduleActions.keySet().iterator();
 
@@ -104,42 +113,46 @@ public class Sequence<T> {
 
             long current = System.currentTimeMillis();
 
-            // 1. Fail the action if it is being executed before the delay.
+            // 1. Check that the tick is being executed in the period wanted.
 
-            if (this.lastExecutionTime + ((action.getDelay() / 20) * 1000) > current) {
+            if (this.ticks % action.getPeriod() != 0) return false;
+
+            // 2. Fail the action if it is being executed before the delay.
+
+            if (this.lastExecutionTime + ((action.getDelay() / 20) * 1000) > current)
                 return this.fail(action, sequenceContext);
-            }
 
-            // 2. Fail the action if it being executed after the expire.
+            // 3. Fail the action if it being executed after the expire.
 
             if (this.lastExecutionTime + ((action.getExpire() / 20) * 1000) < current) {
+                if (action.getRepeat() != 0) {
+                    iterator.remove();
+
+                    return this.succeed(action, sequenceContext);
+                }
+
                 return this.fail(action, sequenceContext);
-            }
-
-            // 3. Check that the tick is being executed in the period wanted.
-
-            if (this.ticks % action.getPeriod() != 0) {
-                return false;
             }
 
             // 4. Run the action conditions and fail if they do not pass.
 
-            if (!action.apply(sequenceContext)) {
-                return this.fail(action, sequenceContext);
-            }
+            if (!action.apply(sequenceContext)) return this.fail(action, sequenceContext);
 
             // 5. Succeed the action, remove it and set finish if there are no more actions left.
-
             iterator.remove();
 
-            action.success(sequenceContext);
-
-            this.lastExecutionTime = System.currentTimeMillis();
-
-            if (this.index >= this.observerActions.size() + this.scheduleActions.size()) {
-                this.state = State.FINISHED;
-            }
+            return this.succeed(action, sequenceContext);
         }
+
+        return true;
+    }
+
+    private boolean succeed(final Action action, final SequenceContext sequenceContext) {
+        action.success(sequenceContext);
+
+        this.lastExecutionTime = System.currentTimeMillis();
+
+        if (this.index >= this.observerActions.size() + this.scheduleActions.size()) this.state = State.FINISHED;
 
         return true;
     }
@@ -149,18 +162,37 @@ public class Sequence<T> {
         return false;
     }
 
+    /**
+     * Returns the {@link SequenceBlueprint}.
+     *
+     * @return the sequence blueprint
+     */
     public final SequenceBlueprint<T> getBlueprint() {
         return this.sequenceBlueprint;
     }
 
+    /**
+     * Returns the {@link SequenceContext}.
+     *
+     * @return the sequence context
+     */
     public final SequenceContext getSequenceContext() {
         return this.sequenceContext;
     }
 
+    /**
+     * Returns the trigger {@link T} class.
+     *
+     * @return the trigger class
+     */
     public final Class<? extends T> getTrigger() {
         return this.sequenceBlueprint.getTrigger();
     }
 
+    /**
+     * Returns the {@link Sequence.State}.
+     * @return the sequence state
+     */
     public final State getState() {
         return this.state;
     }
