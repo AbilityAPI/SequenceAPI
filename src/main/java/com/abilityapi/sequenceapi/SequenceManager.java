@@ -210,7 +210,7 @@ public class SequenceManager<T> {
                 force || sequence.getState().equals(Sequence.State.EXPIRED));
     }
 
-    private boolean _invokeObserver(final T event, final Sequence<T> sequence, final SequenceContext sequenceContext) {
+    public boolean _invokeObserver(final T event, final Sequence<T> sequence, final SequenceContext sequenceContext) {
         boolean remove = false;
 
         if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
