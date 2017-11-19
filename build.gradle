@@ -21,7 +21,6 @@ dependencies {
     compileOnly 'com.google.guava:guava:21.0'
 }
 
-
 if (JavaVersion.current().isJava8Compatible()) {
     tasks.withType(Javadoc) {
         options.addStringOption('Xdoclint:none', '-quiet')
