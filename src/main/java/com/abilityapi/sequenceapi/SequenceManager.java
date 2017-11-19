@@ -238,7 +238,7 @@ public class SequenceManager<T> {
         return remove;
     }
 
-    private boolean _invokeScheduler(final Sequence<T> sequence, final SequenceContext sequenceContext) {
+    public boolean _invokeScheduler(final Sequence<T> sequence, final SequenceContext sequenceContext) {
         boolean remove = false;
 
         // 1. Apply the sequence.
@@ -264,7 +264,7 @@ public class SequenceManager<T> {
         return remove;
     }
 
-    private void _createBlueprints(final T event, final SequenceContext sequenceContext) {
+    public void _createBlueprints(final T event, final SequenceContext sequenceContext) {
         for (SequenceBlueprint<T> sequenceBlueprint : this.sequenceRegistry) {
 
             if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceBlueprint.getTrigger())) continue;
