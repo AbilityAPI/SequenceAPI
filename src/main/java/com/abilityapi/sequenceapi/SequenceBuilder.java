@@ -26,29 +26,29 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
     private final Map<ObserverAction<T>, Integer> observerActions = new HashMap<>();
 
     @Override
-    public final ObserverActionBuilder<T> observe(final Class<T> event) {
+    public ObserverActionBuilder<T> observe(final Class<T> event) {
         return this.observe(new ObserverAction<>(event));
     }
 
     @Override
-    public final ObserverActionBuilder<T> observe(final ObserverActionBlueprint<T> actionBlueprint) {
+    public ObserverActionBuilder<T> observe(final ObserverActionBlueprint<T> actionBlueprint) {
         return this.observe(actionBlueprint.create());
     }
 
     @Override
-    public final ObserverActionBuilder<T> observe(final ObserverAction<T> action) {
+    public ObserverActionBuilder<T> observe(final ObserverAction<T> action) {
         this.observerActions.put(action, this.index++);
 
         return new ObserverActionBuilder<>(this, action);
     }
 
     @Override
-    public final ScheduleActionBuilder<T> schedule() {
+    public ScheduleActionBuilder<T> schedule() {
         return this.schedule(new ScheduleAction());
     }
 
     @Override
-    public final ScheduleActionBuilder<T> schedule(final ScheduleAction action) {
+    public ScheduleActionBuilder<T> schedule(final ScheduleAction action) {
         this.scheduleActions.put(action, this.index++);
 
         return new ScheduleActionBuilder<>(this, action);
@@ -62,7 +62,7 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
      * @param sequenceContext the sequence context
      * @return the sequence blueprint
      */
-    public final SequenceBlueprint<T> build(final SequenceContext sequenceContext) {
+    public SequenceBlueprint<T> build(final SequenceContext sequenceContext) {
         return new SequenceBlueprint<T>() {
             @Override
             public final Sequence create(final SequenceContext createSequenceContext) {
