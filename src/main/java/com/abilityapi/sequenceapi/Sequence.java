@@ -147,7 +147,7 @@ public class Sequence<T> {
         return true;
     }
 
-    private boolean succeed(final Action action, final SequenceContext sequenceContext) {
+    public boolean succeed(final Action action, final SequenceContext sequenceContext) {
         action.success(sequenceContext);
 
         this.lastExecutionTime = System.currentTimeMillis();
@@ -157,7 +157,7 @@ public class Sequence<T> {
         return true;
     }
 
-    private boolean fail(final Action action, final SequenceContext sequenceContext) {
+    public boolean fail(final Action action, final SequenceContext sequenceContext) {
         this.state = action.failure(sequenceContext) ? State.CANCELLED : this.state;
         return false;
     }
