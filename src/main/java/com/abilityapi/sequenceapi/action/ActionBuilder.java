@@ -21,7 +21,7 @@ public interface ActionBuilder<T> {
      * @param event the event
      * @return the observer action builder
      */
-    ObserverActionBuilder<T> observe(Class<T> event);
+    ObserverActionBuilder<T> observe(Class<? extends T> event);
 
     /**
      * Adds a new {@link ObserverAction} to the {@link Sequence}

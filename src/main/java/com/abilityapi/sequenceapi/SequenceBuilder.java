@@ -26,7 +26,7 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
     private final Map<ObserverAction<T>, Integer> observerActions = new HashMap<>();
 
     @Override
-    public ObserverActionBuilder<T> observe(final Class<T> event) {
+    public ObserverActionBuilder<T> observe(final Class<? extends T> event) {
         return this.observe(new ObserverAction<>(event));
     }
 

@@ -64,7 +64,7 @@ public class ScheduleActionBuilder<T> implements ActionBuilder<T> {
     }
 
     @Override
-    public ObserverActionBuilder<T> observe(Class<T> event) {
+    public ObserverActionBuilder<T> observe(Class<? extends T> event) {
         return this.observe(new ObserverAction<>(event));
     }
 
