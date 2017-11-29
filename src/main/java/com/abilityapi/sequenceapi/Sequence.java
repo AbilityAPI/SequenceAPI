@@ -47,7 +47,7 @@ public class Sequence<T> {
      * @param sequenceContext the sequence context
      * @return true if the action was successful and false if it was not
      */
-    public final boolean applyObserve(final T event, final SequenceContext sequenceContext) {
+    public boolean applyObserve(final T event, final SequenceContext sequenceContext) {
         final Iterator<ObserverAction<T>> iterator = this.observerActions.keySet().iterator();
 
         if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
@@ -99,7 +99,7 @@ public class Sequence<T> {
      * @param sequenceContext the sequence context
      * @return true if the action was successful and false if it was not
      */
-    public final boolean applySchedule(final SequenceContext sequenceContext) {
+    public boolean applySchedule(final SequenceContext sequenceContext) {
         final Iterator<ScheduleAction> iterator = this.scheduleActions.keySet().iterator();
 
         if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
@@ -148,7 +148,7 @@ public class Sequence<T> {
         return true;
     }
 
-    public final boolean succeed(final Action action, final SequenceContext sequenceContext) {
+    public boolean succeed(final Action action, final SequenceContext sequenceContext) {
         action.success(sequenceContext);
 
         this.lastExecutionTime = System.currentTimeMillis();
@@ -158,7 +158,7 @@ public class Sequence<T> {
         return true;
     }
 
-    public final boolean fail(final Action action, final SequenceContext sequenceContext) {
+    public boolean fail(final Action action, final SequenceContext sequenceContext) {
         this.state = action.failure(sequenceContext) ? State.CANCELLED : this.state;
         return false;
     }
