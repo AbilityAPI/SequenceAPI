@@ -6,6 +6,6 @@ public enum ConditionType {
 
     FAIL,
 
-    UNDEFINED
+    NORMAL
 
 }

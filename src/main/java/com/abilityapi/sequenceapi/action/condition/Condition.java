@@ -10,7 +10,7 @@ public class Condition {
     private final ConditionType conditionType;
 
     public Condition(final ConditionSupplier conditionSupplier) {
-        this(conditionSupplier, ConditionType.UNDEFINED);
+        this(conditionSupplier, ConditionType.NORMAL);
     }
 
     public Condition(final ConditionSupplier conditionSupplier, final ConditionType conditionType) {

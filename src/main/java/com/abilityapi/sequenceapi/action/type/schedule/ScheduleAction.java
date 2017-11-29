@@ -18,13 +18,13 @@ import java.util.List;
  * period, will have the scheduler set active.
  *
  * When it is active the {@link Sequence} will execute the
- * {@link ConditionType#UNDEFINED} {@link Condition}s.
+ * {@link ConditionType#NORMAL} {@link Condition}s.
  *
- * If the {@link ConditionType#UNDEFINED} {@link Condition}s
+ * If the {@link ConditionType#NORMAL} {@link Condition}s
  * fail the {@link Sequence} will execute the {@link ConditionType#FAIL}
  * {@link Condition}s.
  *
- * If the {@link ConditionType#UNDEFINED} {@link Condition}s
+ * If the {@link ConditionType#NORMAL} {@link Condition}s
  * succeed the {@link Sequence} will execute the
  * {@link ConditionType#SUCCESS} {@link Condition}s.
  *
@@ -101,7 +101,7 @@ public class ScheduleAction implements Action {
     @Override
     public final boolean apply(final SequenceContext sequenceContext) {
         boolean applyResult = this.conditions.stream()
-                .filter(condition -> condition.getType().equals(ConditionType.UNDEFINED))
+                .filter(condition -> condition.getType().equals(ConditionType.NORMAL))
                 .allMatch(condition -> condition.getSupplier().apply(sequenceContext));
 
         if (applyResult && this.period != 0) this.repeat++;

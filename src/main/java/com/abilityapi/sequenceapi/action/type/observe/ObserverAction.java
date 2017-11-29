@@ -21,7 +21,7 @@ import java.util.List;
  * execute the {@link ConditionType#FAIL} {@link Condition}s.
  *
  * Otherwise if the event is the same as the target event class
- * it will execute the {@link ConditionType#UNDEFINED}
+ * it will execute the {@link ConditionType#NORMAL}
  * {@link Condition}s. If these all pass it will then execute
  * the {@link ConditionType#SUCCESS} {@link Condition}s.</p>
  *
@@ -67,7 +67,7 @@ public class ObserverAction<T> implements Action {
     @Override
     public final boolean apply(final SequenceContext sequenceContext) {
         return this.conditions.stream()
-                .filter(condition -> condition.getType().equals(ConditionType.UNDEFINED))
+                .filter(condition -> condition.getType().equals(ConditionType.NORMAL))
                 .allMatch(condition -> condition.getSupplier().apply(sequenceContext));
     }
 
