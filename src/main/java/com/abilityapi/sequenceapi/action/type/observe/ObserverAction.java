@@ -35,51 +35,51 @@ public class ObserverAction<T> implements Action {
     private int delay = 0;
     private int expire = 0;
 
-    public ObserverAction(Class<? extends T> eventClass) {
+    public ObserverAction(final Class<? extends T> eventClass) {
         this.eventClass = eventClass;
     }
 
     @Override
-    public void addCondition(Condition condition) {
+    public void addCondition(final Condition condition) {
         this.conditions.add(condition);
     }
 
     @Override
-    public void setDelay(int period) {
+    public void setDelay(final int period) {
         this.delay = period;
     }
 
     @Override
-    public void setExpire(int period) {
+    public void setExpire(final int period) {
         this.expire = period;
     }
 
     @Override
-    public int getDelay() {
+    public final int getDelay() {
         return this.delay;
     }
 
     @Override
-    public int getExpire() {
+    public final int getExpire() {
         return this.expire;
     }
 
     @Override
-    public boolean apply(SequenceContext sequenceContext) {
+    public final boolean apply(final SequenceContext sequenceContext) {
         return this.conditions.stream()
                 .filter(condition -> condition.getType().equals(ConditionType.UNDEFINED))
                 .allMatch(condition -> condition.getSupplier().apply(sequenceContext));
     }
 
     @Override
-    public boolean success(SequenceContext sequenceContext) {
+    public final boolean success(final SequenceContext sequenceContext) {
         return this.conditions.stream()
                 .filter(condition -> condition.getType().equals(ConditionType.SUCCESS))
                 .allMatch(condition -> condition.getSupplier().apply(sequenceContext));
     }
 
     @Override
-    public boolean failure(SequenceContext sequenceContext) {
+    public final boolean failure(final SequenceContext sequenceContext) {
         return this.conditions.stream()
                 .filter(condition -> condition.getType().equals(ConditionType.FAIL))
                 .anyMatch(condition -> condition.getSupplier().apply(sequenceContext));

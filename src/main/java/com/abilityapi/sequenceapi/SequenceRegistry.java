@@ -22,7 +22,7 @@ public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
      * @param sequenceBlueprint the sequence blueprint
      * @return true if the blueprint was added, false if it was not
      */
-    public boolean put(final SequenceBlueprint<T> sequenceBlueprint) {
+    public final boolean put(final SequenceBlueprint<T> sequenceBlueprint) {
         if (this.registry.containsKey(sequenceBlueprint.getClass())) return false;
         this.registry.put(sequenceBlueprint.getClass(), sequenceBlueprint);
 
@@ -36,7 +36,7 @@ public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
      * @param key the key
      * @return the sequence blueprint
      */
-    public Optional<SequenceBlueprint<T>> get(final Class<?> key) {
+    public final Optional<SequenceBlueprint<T>> get(final Class<?> key) {
         if (!this.registry.containsKey(key)) return Optional.empty();
         return Optional.ofNullable(this.registry.get(key));
     }
@@ -47,7 +47,7 @@ public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
      * @param sequenceBlueprint the blueprint
      * @return the sequence key, or {@code null} if they check is not contained in this registry
      */
-    public Class<?> key(final SequenceBlueprint<T> sequenceBlueprint) {
+    public final Class<?> key(final SequenceBlueprint<T> sequenceBlueprint) {
         return this.registry.inverse().get(sequenceBlueprint);
     }
 
@@ -56,12 +56,12 @@ public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
      *
      * @return the sequence key, or {@code null} if they check is not contained in this registry
      */
-    public Set<Class<?>> keySet() {
+    public final Set<Class<?>> keySet() {
         return this.registry.keySet();
     }
 
     @Override
-    public Iterator<SequenceBlueprint<T>> iterator() {
+    public final Iterator<SequenceBlueprint<T>> iterator() {
         return this.registry.values().iterator();
     }
 }

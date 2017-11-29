@@ -20,13 +20,13 @@ public class SequenceContext {
         return new Builder();
     }
 
-    public static Builder from(SequenceContext sequenceContext) {
+    public static Builder from(final SequenceContext sequenceContext) {
         return new Builder(sequenceContext);
     }
 
     private final ImmutableMap<SequenceContextKey, Object> context;
 
-    private SequenceContext(Map<SequenceContextKey, Object> context) {
+    private SequenceContext(final Map<SequenceContextKey, Object> context) {
         this.context = ImmutableMap.copyOf(context);
     }
 
@@ -65,12 +65,12 @@ public class SequenceContext {
             merge(sequenceContext);
         }
 
-        public Builder merge(final SequenceContext sequenceContext) {
+        public final Builder merge(final SequenceContext sequenceContext) {
             sequenceContext.context.forEach(this::custom);
             return this;
         }
 
-        public Builder id(final UUID value) {
+        public final Builder id(final UUID value) {
             if (!this.keysUsed.contains(SequenceContext.ID.getId())) {
                 this.context.put(SequenceContext.ID, value);
                 this.keysUsed.add(SequenceContext.ID.getId());
@@ -78,7 +78,7 @@ public class SequenceContext {
             return this;
         }
 
-        public Builder root(final Object value) {
+        public final Builder root(final Object value) {
             if (!this.keysUsed.contains(SequenceContext.ROOT.getId())) {
                 this.context.put(SequenceContext.ROOT, value);
                 this.keysUsed.add(SequenceContext.ROOT.getId());
@@ -86,7 +86,7 @@ public class SequenceContext {
             return this;
         }
 
-        public Builder source(final Object value) {
+        public final Builder source(final Object value) {
             if (!this.keysUsed.contains(SequenceContext.SOURCE.getId())) {
                 this.context.put(SequenceContext.SOURCE, value);
                 this.keysUsed.add(SequenceContext.SOURCE.getId());
@@ -94,7 +94,7 @@ public class SequenceContext {
             return this;
         }
 
-        public Builder owner(final Object value) {
+        public final Builder owner(final Object value) {
             if (!this.keysUsed.contains(SequenceContext.OWNER.getId())) {
                 this.context.put(SequenceContext.OWNER, value);
                 this.keysUsed.add(SequenceContext.OWNER.getId());
@@ -102,7 +102,7 @@ public class SequenceContext {
             return this;
         }
 
-        public Builder state(final Object value) {
+        public final Builder state(final Object value) {
             if (!this.keysUsed.contains(SequenceContext.STATE.getId())) {
                 this.context.put(SequenceContext.STATE, value);
                 this.keysUsed.add(SequenceContext.STATE.getId());
@@ -110,7 +110,7 @@ public class SequenceContext {
             return this;
         }
 
-        public Builder custom(final SequenceContextKey key, final Object value) {
+        public final Builder custom(final SequenceContextKey key, final Object value) {
             if (!this.keysUsed.contains(key.getId())) {
                 this.context.put(key, value);
                 this.keysUsed.add(key.getId());
@@ -118,7 +118,7 @@ public class SequenceContext {
             return this;
         }
 
-        public SequenceContext build() {
+        public final SequenceContext build() {
             return new SequenceContext(this.context);
         }
 

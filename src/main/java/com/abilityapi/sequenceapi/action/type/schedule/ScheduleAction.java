@@ -44,17 +44,17 @@ public class ScheduleAction implements Action {
     public ScheduleAction() {}
 
     @Override
-    public void addCondition(Condition condition) {
+    public void addCondition(final Condition condition) {
         this.conditions.add(condition);
     }
 
     @Override
-    public void setDelay(int period) {
+    public void setDelay(final int period) {
         this.delay = period;
     }
 
     @Override
-    public void setExpire(int period) {
+    public void setExpire(final int period) {
         this.expire = period;
     }
 
@@ -64,17 +64,17 @@ public class ScheduleAction implements Action {
      *
      * @param period the period
      */
-    public void setPeriod(int period) {
+    public void setPeriod(final int period) {
         this.period = period;
     }
 
     @Override
-    public int getDelay() {
+    public final int getDelay() {
         return this.delay;
     }
 
     @Override
-    public int getExpire() {
+    public final int getExpire() {
         return this.expire;
     }
 
@@ -84,7 +84,7 @@ public class ScheduleAction implements Action {
      *
      * @return the period
      */
-    public int getPeriod() {
+    public final int getPeriod() {
         return this.period;
     }
 
@@ -94,12 +94,12 @@ public class ScheduleAction implements Action {
      *
      * @return the amount of repeats
      */
-    public int getRepeats() {
+    public final int getRepeats() {
         return this.repeat;
     }
 
     @Override
-    public boolean apply(SequenceContext sequenceContext) {
+    public final boolean apply(final SequenceContext sequenceContext) {
         boolean applyResult = this.conditions.stream()
                 .filter(condition -> condition.getType().equals(ConditionType.UNDEFINED))
                 .allMatch(condition -> condition.getSupplier().apply(sequenceContext));
@@ -109,14 +109,14 @@ public class ScheduleAction implements Action {
     }
 
     @Override
-    public boolean success(SequenceContext sequenceContext) {
+    public final boolean success(final SequenceContext sequenceContext) {
         return this.conditions.stream()
                 .filter(condition -> condition.getType().equals(ConditionType.SUCCESS))
                 .allMatch(condition -> condition.getSupplier().apply(sequenceContext));
     }
 
     @Override
-    public boolean failure(SequenceContext sequenceContext) {
+    public final boolean failure(final SequenceContext sequenceContext) {
         return this.conditions.stream()
                 .filter(condition -> condition.getType().equals(ConditionType.FAIL))
                 .anyMatch(condition -> condition.getSupplier().apply(sequenceContext));

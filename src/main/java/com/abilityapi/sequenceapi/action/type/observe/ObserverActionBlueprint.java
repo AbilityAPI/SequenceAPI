@@ -9,7 +9,7 @@ public class ObserverActionBlueprint<T> {
 
     private final Class<? extends T> eventClass;
 
-    public ObserverActionBlueprint(Class<? extends T> eventClass) {
+    public ObserverActionBlueprint(final Class<? extends T> eventClass) {
         this.eventClass = eventClass;
     }
 
@@ -18,7 +18,7 @@ public class ObserverActionBlueprint<T> {
      *
      * @return the new observer action
      */
-    public ObserverAction<T> create() {
+    public final ObserverAction<T> create() {
         return new ObserverAction<>(this.eventClass);
     }
 

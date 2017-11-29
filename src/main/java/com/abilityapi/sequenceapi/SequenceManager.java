@@ -221,7 +221,7 @@ public class SequenceManager<T> {
 
         // 2. Check if the sequence is cancelled, or is expired.
 
-        Sequence.State sequenceState = sequence.getState();
+        final Sequence.State sequenceState = sequence.getState();
 
         if (!sequenceState.isSafe()) {
             remove = true;
@@ -247,7 +247,7 @@ public class SequenceManager<T> {
 
         // 2. Check if the sequence is cancelled, or is expired.
 
-        Sequence.State sequenceState = sequence.getState();
+        final Sequence.State sequenceState = sequence.getState();
 
         if (!sequenceState.isSafe()) {
             remove = true;
@@ -277,7 +277,7 @@ public class SequenceManager<T> {
 
             // 2. Apply the sequence for the first time to check the observer or leave it.
 
-            Sequence<T> sequence = sequenceBlueprint.create(sequenceContext);
+            final Sequence<T> sequence = sequenceBlueprint.create(sequenceContext);
 
             if (sequence.applyObserve(event, sequenceContext)) {
                 if (!sequence.getState().isSafe() || sequence.getState().equals(Sequence.State.FINISHED)) {

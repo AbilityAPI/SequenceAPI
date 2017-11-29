@@ -21,7 +21,7 @@ public interface ActionBuilder<T> {
      * @param event the event
      * @return the observer action builder
      */
-    ObserverActionBuilder<T> observe(Class<? extends T> event);
+    ObserverActionBuilder<T> observe(final Class<? extends T> event);
 
     /**
      * Adds a new {@link ObserverAction} to the {@link Sequence}
@@ -30,7 +30,7 @@ public interface ActionBuilder<T> {
      * @param actionBlueprint the observer action blueprint
      * @return the observer action builder
      */
-    ObserverActionBuilder<T> observe(ObserverActionBlueprint<T> actionBlueprint);
+    ObserverActionBuilder<T> observe(final ObserverActionBlueprint<T> actionBlueprint);
 
     /**
      * Adds a new {@link ObserverAction} to the {@link Sequence}.
@@ -38,7 +38,7 @@ public interface ActionBuilder<T> {
      * @param action the observer action
      * @return the observer action builder
      */
-    ObserverActionBuilder<T> observe(ObserverAction<T> action);
+    ObserverActionBuilder<T> observe(final ObserverAction<T> action);
 
     /**
      * Adds a new {@link ScheduleAction} to the {@link Sequence}.
@@ -53,6 +53,6 @@ public interface ActionBuilder<T> {
      * @param scheduleAction the schedule action
      * @return the schedule action builder
      */
-    ScheduleActionBuilder<T> schedule(ScheduleAction scheduleAction);
+    ScheduleActionBuilder<T> schedule(final ScheduleAction scheduleAction);
 
 }

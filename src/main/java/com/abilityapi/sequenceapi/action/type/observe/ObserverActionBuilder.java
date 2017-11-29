@@ -33,7 +33,7 @@ public class ObserverActionBuilder<T> implements ActionBuilder<T> {
      * @param conditionType the condition type
      * @return this builder
      */
-    public ObserverActionBuilder<T> condition(final ConditionSupplier conditionSupplier, final ConditionType conditionType) {
+    public final ObserverActionBuilder<T> condition(final ConditionSupplier conditionSupplier, final ConditionType conditionType) {
         this.action.addCondition(new Condition(conditionSupplier, conditionType));
         return this;
     }
@@ -44,7 +44,7 @@ public class ObserverActionBuilder<T> implements ActionBuilder<T> {
      * @param value the period of delay
      * @return this builder
      */
-    public ObserverActionBuilder<T> delay(int value) {
+    public final ObserverActionBuilder<T> delay(final int value) {
         this.action.setDelay(value);
         return this;
     }
@@ -55,33 +55,33 @@ public class ObserverActionBuilder<T> implements ActionBuilder<T> {
      * @param value the period to expire
      * @return this builder
      */
-    public ObserverActionBuilder<T> expire(int value) {
+    public final ObserverActionBuilder<T> expire(final int value) {
         this.action.setExpire(value);
         return this;
     }
 
     @Override
-    public ObserverActionBuilder<T> observe(Class<? extends T> event) {
+    public final ObserverActionBuilder<T> observe(final Class<? extends T> event) {
         return this.observe(new ObserverAction<>(event));
     }
 
     @Override
-    public ObserverActionBuilder<T> observe(ObserverActionBlueprint<T> actionBlueprint) {
+    public final ObserverActionBuilder<T> observe(final ObserverActionBlueprint<T> actionBlueprint) {
         return this.observe(actionBlueprint.create());
     }
 
     @Override
-    public ObserverActionBuilder<T> observe(ObserverAction<T> action) {
+    public final ObserverActionBuilder<T> observe(final ObserverAction<T> action) {
         return this.sequenceBuilder.observe(action);
     }
 
     @Override
-    public ScheduleActionBuilder<T> schedule() {
+    public final ScheduleActionBuilder<T> schedule() {
         return this.schedule(new ScheduleAction());
     }
 
     @Override
-    public ScheduleActionBuilder<T> schedule(ScheduleAction scheduleAction) {
+    public final ScheduleActionBuilder<T> schedule(final ScheduleAction scheduleAction) {
         return this.sequenceBuilder.schedule(scheduleAction);
     }
 
@@ -93,7 +93,7 @@ public class ObserverActionBuilder<T> implements ActionBuilder<T> {
      * @param sequenceContext the sequence context
      * @return the sequence blueprint
      */
-    public SequenceBlueprint<T> build(final SequenceContext sequenceContext) {
+    public final SequenceBlueprint<T> build(final SequenceContext sequenceContext) {
         return this.sequenceBuilder.build(sequenceContext);
     }
 

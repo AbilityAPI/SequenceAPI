@@ -11,7 +11,7 @@ public class SequenceContextKey {
     private final String id;
     private final Object defaultValue;
 
-    public SequenceContextKey(final String id, Object defaultValue) {
+    public SequenceContextKey(final String id, final Object defaultValue) {
         this.id = id;
         this.defaultValue = defaultValue;
     }

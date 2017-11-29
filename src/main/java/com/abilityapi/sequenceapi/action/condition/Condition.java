@@ -23,7 +23,7 @@ public class Condition {
      *
      * @return the condition supplier
      */
-    public ConditionSupplier getSupplier() {
+    public final ConditionSupplier getSupplier() {
         return this.conditionSupplier;
     }
 
@@ -32,7 +32,7 @@ public class Condition {
      *
      * @return the condition type
      */
-    public ConditionType getType() {
+    public final ConditionType getType() {
         return this.conditionType;
     }
 

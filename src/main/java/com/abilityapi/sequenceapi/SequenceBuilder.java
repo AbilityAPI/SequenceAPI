@@ -26,29 +26,29 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
     private final Map<ObserverAction<T>, Integer> observerActions = new HashMap<>();
 
     @Override
-    public ObserverActionBuilder<T> observe(final Class<? extends T> event) {
+    public final ObserverActionBuilder<T> observe(final Class<? extends T> event) {
         return this.observe(new ObserverAction<>(event));
     }
 
     @Override
-    public ObserverActionBuilder<T> observe(final ObserverActionBlueprint<T> actionBlueprint) {
+    public final ObserverActionBuilder<T> observe(final ObserverActionBlueprint<T> actionBlueprint) {
         return this.observe(actionBlueprint.create());
     }
 
     @Override
-    public ObserverActionBuilder<T> observe(final ObserverAction<T> action) {
+    public final ObserverActionBuilder<T> observe(final ObserverAction<T> action) {
         this.observerActions.put(action, this.index++);
 
         return new ObserverActionBuilder<>(this, action);
     }
 
     @Override
-    public ScheduleActionBuilder<T> schedule() {
+    public final ScheduleActionBuilder<T> schedule() {
         return this.schedule(new ScheduleAction());
     }
 
     @Override
-    public ScheduleActionBuilder<T> schedule(final ScheduleAction action) {
+    public final ScheduleActionBuilder<T> schedule(final ScheduleAction action) {
         this.scheduleActions.put(action, this.index++);
 
         return new ScheduleActionBuilder<>(this, action);
@@ -62,10 +62,10 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
      * @param sequenceContext the sequence context
      * @return the sequence blueprint
      */
-    public SequenceBlueprint<T> build(final SequenceContext sequenceContext) {
+    public final SequenceBlueprint<T> build(final SequenceContext sequenceContext) {
         return new SequenceBlueprint<T>() {
             @Override
-            public final Sequence create(final SequenceContext createSequenceContext) {
+            public final Sequence<T> create(final SequenceContext createSequenceContext) {
                 final SequenceContext.Builder newOrigin = SequenceContext.from(createSequenceContext);
                 if (sequenceContext != null) newOrigin.merge(sequenceContext);
 

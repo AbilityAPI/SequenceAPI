@@ -14,21 +14,21 @@ public interface Action {
      *
      * @param condition the condition
      */
-    void addCondition(Condition condition);
+    void addCondition(final Condition condition);
 
     /**
      * Sets a delay to this {@link Action}.
      *
      * @param period the period of delay
      */
-    void setDelay(int period);
+    void setDelay(final int period);
 
     /**
      * Sets an expire to this {@link Action}.
      *
      * @param period the period to expire
      */
-    void setExpire(int period);
+    void setExpire(final int period);
 
     /**
      * Returns the delay period.

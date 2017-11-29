@@ -28,7 +28,8 @@ public class Sequence<T> {
     private long lastExecutionTime = System.currentTimeMillis();
     private State state = State.INACTIVE;
 
-    public Sequence(final SequenceContext sequenceContext, final SequenceBlueprint<T> sequenceBlueprint,
+    public Sequence(final SequenceContext sequenceContext,
+                    final SequenceBlueprint<T> sequenceBlueprint,
                     final Map<ScheduleAction, Integer> scheduleActions,
                     final Map<ObserverAction<T>, Integer> observerActions) {
         this.sequenceContext = sequenceContext;
@@ -46,18 +47,18 @@ public class Sequence<T> {
      * @param sequenceContext the sequence context
      * @return true if the action was successful and false if it was not
      */
-    public boolean applyObserve(final T event, final SequenceContext sequenceContext) {
-        Iterator<ObserverAction<T>> iterator = this.observerActions.keySet().iterator();
+    public final boolean applyObserve(final T event, final SequenceContext sequenceContext) {
+        final Iterator<ObserverAction<T>> iterator = this.observerActions.keySet().iterator();
 
         if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
 
         if (iterator.hasNext()) {
-            ObserverAction<T> action = iterator.next();
+            final ObserverAction<T> action = iterator.next();
 
             if (this.observerActions.get(action) != this.index) return false;
             this.index++;
 
-            long current = System.currentTimeMillis();
+            final long current = System.currentTimeMillis();
 
             // 1. Check that the event is the correct one for this action.
 
@@ -98,20 +99,20 @@ public class Sequence<T> {
      * @param sequenceContext the sequence context
      * @return true if the action was successful and false if it was not
      */
-    public boolean applySchedule(final SequenceContext sequenceContext) {
-        Iterator<ScheduleAction> iterator = this.scheduleActions.keySet().iterator();
+    public final boolean applySchedule(final SequenceContext sequenceContext) {
+        final Iterator<ScheduleAction> iterator = this.scheduleActions.keySet().iterator();
 
         if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
 
         this.ticks++;
 
         if (iterator.hasNext()) {
-            ScheduleAction action = iterator.next();
+            final ScheduleAction action = iterator.next();
 
             if (this.scheduleActions.get(action) != this.index) return false;
             this.index++;
 
-            long current = System.currentTimeMillis();
+            final long current = System.currentTimeMillis();
 
             // 1. Check that the tick is being executed in the period wanted.
 
@@ -147,7 +148,7 @@ public class Sequence<T> {
         return true;
     }
 
-    public boolean succeed(final Action action, final SequenceContext sequenceContext) {
+    public final boolean succeed(final Action action, final SequenceContext sequenceContext) {
         action.success(sequenceContext);
 
         this.lastExecutionTime = System.currentTimeMillis();
@@ -157,7 +158,7 @@ public class Sequence<T> {
         return true;
     }
 
-    public boolean fail(final Action action, final SequenceContext sequenceContext) {
+    public final boolean fail(final Action action, final SequenceContext sequenceContext) {
         this.state = action.failure(sequenceContext) ? State.CANCELLED : this.state;
         return false;
     }
@@ -210,7 +211,7 @@ public class Sequence<T> {
             this.safe = safe;
         }
 
-        public boolean isSafe() {
+        public final boolean isSafe() {
             return this.safe;
         }
     }
