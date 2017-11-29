@@ -102,7 +102,7 @@ public class ScheduleAction implements Action {
     public boolean apply(SequenceContext sequenceContext) {
         boolean applyResult = this.conditions.stream()
                 .filter(condition -> condition.getType().equals(ConditionType.UNDEFINED))
-                .allMatch(condition -> condition.apply(sequenceContext));
+                .allMatch(condition -> condition.getSupplier().apply(sequenceContext));
 
         if (applyResult && this.period != 0) this.repeat++;
         return applyResult;
@@ -112,14 +112,14 @@ public class ScheduleAction implements Action {
     public boolean success(SequenceContext sequenceContext) {
         return this.conditions.stream()
                 .filter(condition -> condition.getType().equals(ConditionType.SUCCESS))
-                .allMatch(condition -> condition.apply(sequenceContext));
+                .allMatch(condition -> condition.getSupplier().apply(sequenceContext));
     }
 
     @Override
     public boolean failure(SequenceContext sequenceContext) {
         return this.conditions.stream()
                 .filter(condition -> condition.getType().equals(ConditionType.FAIL))
-                .anyMatch(condition -> condition.apply(sequenceContext));
+                .anyMatch(condition -> condition.getSupplier().apply(sequenceContext));
     }
 
 }

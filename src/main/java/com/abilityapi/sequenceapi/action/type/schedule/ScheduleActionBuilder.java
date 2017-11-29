@@ -4,6 +4,8 @@ import com.abilityapi.sequenceapi.SequenceBlueprint;
 import com.abilityapi.sequenceapi.SequenceBuilder;
 import com.abilityapi.sequenceapi.action.ActionBuilder;
 import com.abilityapi.sequenceapi.action.condition.Condition;
+import com.abilityapi.sequenceapi.action.condition.ConditionSupplier;
+import com.abilityapi.sequenceapi.action.condition.ConditionType;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
@@ -22,11 +24,12 @@ public class ScheduleActionBuilder<T> implements ActionBuilder<T> {
     /**
      * Adds a {@link Condition} to this {@link ScheduleAction}.
      *
-     * @param condition the condition
+     * @param conditionSupplier the condition supplier
+     * @param conditionType the condition type
      * @return this builder
      */
-    public ScheduleActionBuilder<T> condition(final Condition condition) {
-        this.action.addCondition(condition);
+    public ScheduleActionBuilder<T> condition(final ConditionSupplier conditionSupplier, final ConditionType conditionType) {
+        this.action.addCondition(new Condition(conditionSupplier, conditionType));
         return this;
     }
 

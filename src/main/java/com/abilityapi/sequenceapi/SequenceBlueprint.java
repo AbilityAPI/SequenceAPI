@@ -17,7 +17,7 @@ public interface SequenceBlueprint<T> {
      * @param sequenceContext the sequence context
      * @return the new sequence
      */
-    Sequence create(SequenceContext sequenceContext);
+    Sequence<T> create(SequenceContext sequenceContext);
 
     /**
      * Returns the {@link Sequence} event trigger

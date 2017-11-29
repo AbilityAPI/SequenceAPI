@@ -68,21 +68,21 @@ public class ObserverAction<T> implements Action {
     public boolean apply(SequenceContext sequenceContext) {
         return this.conditions.stream()
                 .filter(condition -> condition.getType().equals(ConditionType.UNDEFINED))
-                .allMatch(condition -> condition.apply(sequenceContext));
+                .allMatch(condition -> condition.getSupplier().apply(sequenceContext));
     }
 
     @Override
     public boolean success(SequenceContext sequenceContext) {
         return this.conditions.stream()
                 .filter(condition -> condition.getType().equals(ConditionType.SUCCESS))
-                .allMatch(condition -> condition.apply(sequenceContext));
+                .allMatch(condition -> condition.getSupplier().apply(sequenceContext));
     }
 
     @Override
     public boolean failure(SequenceContext sequenceContext) {
         return this.conditions.stream()
                 .filter(condition -> condition.getType().equals(ConditionType.FAIL))
-                .anyMatch(condition -> condition.apply(sequenceContext));
+                .anyMatch(condition -> condition.getSupplier().apply(sequenceContext));
     }
 
     /**
