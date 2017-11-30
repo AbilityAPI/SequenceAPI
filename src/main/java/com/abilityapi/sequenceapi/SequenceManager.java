@@ -1,13 +1,12 @@
 package com.abilityapi.sequenceapi;
 
-import com.abilityapi.sequenceapi.context.SequenceContext;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import static com.abilityapi.sequenceapi.util.SequencePreconditions.checkOriginType;
+import static com.abilityapi.sequenceapi.SequencePreconditions.checkOriginType;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**

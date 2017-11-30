@@ -1,7 +1,5 @@
 package com.abilityapi.sequenceapi;
 
-import com.abilityapi.sequenceapi.context.SequenceContext;
-
 /**
  * Represents a way to create a new {@link Sequence}
  * from a pre-existing order.

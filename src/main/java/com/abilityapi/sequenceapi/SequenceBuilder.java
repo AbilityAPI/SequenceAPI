@@ -6,7 +6,6 @@ import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBuilder;
-import com.abilityapi.sequenceapi.context.SequenceContext;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 

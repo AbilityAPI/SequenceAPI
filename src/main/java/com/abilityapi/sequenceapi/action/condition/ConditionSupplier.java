@@ -1,7 +1,7 @@
 package com.abilityapi.sequenceapi.action.condition;
 
+import com.abilityapi.sequenceapi.SequenceContext;
 import com.abilityapi.sequenceapi.action.Action;
-import com.abilityapi.sequenceapi.context.SequenceContext;
 
 /**
  * Supplier for the result of this condition with

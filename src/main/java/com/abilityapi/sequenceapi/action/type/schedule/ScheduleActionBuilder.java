@@ -2,6 +2,7 @@ package com.abilityapi.sequenceapi.action.type.schedule;
 
 import com.abilityapi.sequenceapi.SequenceBlueprint;
 import com.abilityapi.sequenceapi.SequenceBuilder;
+import com.abilityapi.sequenceapi.SequenceContext;
 import com.abilityapi.sequenceapi.action.ActionBuilder;
 import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.action.condition.ConditionSupplier;
@@ -9,7 +10,6 @@ import com.abilityapi.sequenceapi.action.condition.ConditionType;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
-import com.abilityapi.sequenceapi.context.SequenceContext;
 
 public class ScheduleActionBuilder<T> implements ActionBuilder<T> {
 

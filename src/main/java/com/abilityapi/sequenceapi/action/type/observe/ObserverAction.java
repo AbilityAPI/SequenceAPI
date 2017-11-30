@@ -1,10 +1,10 @@
 package com.abilityapi.sequenceapi.action.type.observe;
 
 import com.abilityapi.sequenceapi.Sequence;
+import com.abilityapi.sequenceapi.SequenceContext;
 import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.action.condition.ConditionType;
-import com.abilityapi.sequenceapi.context.SequenceContext;
 
 import java.util.ArrayList;
 import java.util.List;

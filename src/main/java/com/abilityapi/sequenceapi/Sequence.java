@@ -3,7 +3,6 @@ package com.abilityapi.sequenceapi;
 import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
-import com.abilityapi.sequenceapi.context.SequenceContext;
 
 import java.util.HashMap;
 import java.util.Iterator;

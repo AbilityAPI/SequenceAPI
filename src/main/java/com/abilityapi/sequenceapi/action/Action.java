@@ -1,8 +1,8 @@
 package com.abilityapi.sequenceapi.action;
 
+import com.abilityapi.sequenceapi.SequenceContext;
 import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.action.condition.ConditionType;
-import com.abilityapi.sequenceapi.context.SequenceContext;
 
 /**
  * Represents an action.
