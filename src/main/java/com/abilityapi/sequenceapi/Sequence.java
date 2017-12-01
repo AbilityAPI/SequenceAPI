@@ -190,6 +190,16 @@ public class Sequence<T> {
     }
 
     /**
+     * Returns the time in milliseconds
+     * that the last action occurred.
+     *
+     * @return the last action time
+     */
+    public final long getLastExecutionTime() {
+        return this.lastExecutionTime;
+    }
+
+    /**
      * Returns the {@link Sequence.State}.
      * @return the sequence state
      */
