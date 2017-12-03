@@ -14,7 +14,7 @@ import java.util.Set;
  */
 public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
 
-    private final BiMap<Class<?>, SequenceBlueprint<T>> registry = HashBiMap.create();
+    private final BiMap<Class<? extends SequenceBlueprint>, SequenceBlueprint<T>> registry = HashBiMap.create();
 
     /**
      * Puts the {@link SequenceBlueprint} into this registry.
@@ -36,7 +36,7 @@ public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
      * @param key the key
      * @return the sequence blueprint
      */
-    public final Optional<SequenceBlueprint<T>> get(final Class<?> key) {
+    public final Optional<SequenceBlueprint<T>> get(final Class<? extends SequenceBlueprint> key) {
         if (!this.registry.containsKey(key)) return Optional.empty();
         return Optional.ofNullable(this.registry.get(key));
     }
@@ -56,7 +56,7 @@ public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
      *
      * @return the sequence key, or {@code null} if they check is not contained in this registry
      */
-    public final Set<Class<?>> keySet() {
+    public final Set<Class<? extends SequenceBlueprint>> keySet() {
         return this.registry.keySet();
     }
 

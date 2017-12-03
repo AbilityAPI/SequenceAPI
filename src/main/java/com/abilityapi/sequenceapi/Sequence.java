@@ -159,6 +159,9 @@ public class Sequence<T> {
 
     public boolean fail(final Action action, final SequenceContext sequenceContext) {
         this.state = action.failure(sequenceContext) ? State.CANCELLED : this.state;
+
+        this.lastExecutionTime = System.currentTimeMillis();
+
         return false;
     }
 

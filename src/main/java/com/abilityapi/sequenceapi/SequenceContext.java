@@ -30,26 +30,32 @@ public class SequenceContext {
         this.context = ImmutableMap.copyOf(context);
     }
 
+    @SuppressWarnings("unchecked")
     public final <T> T getId() {
         return (T) this.context.get(ID);
     }
 
+    @SuppressWarnings("unchecked")
     public final <T> T getRoot() {
         return (T) this.context.get(ROOT);
     }
 
+    @SuppressWarnings("unchecked")
     public final <T> T getSource() {
         return (T) this.context.get(SOURCE);
     }
 
+    @SuppressWarnings("unchecked")
     public final <T> T getOwner() {
         return (T) this.context.get(OWNER);
     }
 
+    @SuppressWarnings("unchecked")
     public final <T> T getState() {
         return (T) this.context.get(STATE);
     }
 
+    @SuppressWarnings("unchecked")
     public final <T> T get(final String key) {
         return (T) this.context.get(key);
     }

@@ -121,7 +121,7 @@ public class SequenceManager<T> {
         SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
         this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
-            if (predicate.test(sequence)) return false;
+            if (!predicate.test(sequence)) return false;
             if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
 
             return this._invokeScheduler(sequence, sequenceContext);

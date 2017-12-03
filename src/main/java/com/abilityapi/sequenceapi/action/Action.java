@@ -45,7 +45,7 @@ public interface Action {
     int getExpire();
 
     /**
-     * Applies all {@link ConditionType#UNDEFINED} {@link Condition}s
+     * Applies all {@link ConditionType#NORMAL} {@link Condition}s
      * in this {@link Action} and returns the result of it.
      *
      * @param sequenceContext the sequence context
