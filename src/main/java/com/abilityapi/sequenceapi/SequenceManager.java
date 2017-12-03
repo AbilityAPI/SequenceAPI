@@ -6,7 +6,7 @@ import com.google.common.collect.Multimap;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import static com.abilityapi.sequenceapi.SequencePreconditions.checkOriginType;
+import static com.abilityapi.sequenceapi.SequencePreconditions.checkContextNotNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -40,9 +40,9 @@ public class SequenceManager<T> {
     public void invokeObserver(final T event, final SequenceContext sequenceContext) {
         checkNotNull(event);
         checkNotNull(sequenceContext);
-        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
+        SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
-        this.sequences.get((UUID) sequenceContext.getId()).removeIf(sequence -> {
+        this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
            if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
 
            return this._invokeObserver(event, sequence, sequenceContext);
@@ -69,9 +69,9 @@ public class SequenceManager<T> {
         checkNotNull(event);
         checkNotNull(sequenceContext);
         checkNotNull(predicate);
-        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
+        SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
-        this.sequences.get((UUID) sequenceContext.getId()).removeIf(sequence -> {
+        this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
             if (!predicate.test(sequence)) return false;
             if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
 
@@ -95,9 +95,9 @@ public class SequenceManager<T> {
      */
     public void updateScheduler(final SequenceContext sequenceContext) {
         checkNotNull(sequenceContext);
-        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
+        SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
-        this.sequences.get((UUID) sequenceContext.getId()).removeIf(sequence -> {
+        this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
             if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
 
             return this._invokeScheduler(sequence, sequenceContext);
@@ -118,9 +118,9 @@ public class SequenceManager<T> {
     public void updateSchedulerIf(final SequenceContext sequenceContext, final Predicate<Object> predicate) {
         checkNotNull(sequenceContext);
         checkNotNull(predicate);
-        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
+        SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
-        this.sequences.get((UUID) sequenceContext.getId()).removeIf(sequence -> {
+        this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
             if (predicate.test(sequence)) return false;
             if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
 
@@ -143,11 +143,11 @@ public class SequenceManager<T> {
      */
     public void block(final SequenceContext sequenceContext) {
         checkNotNull(sequenceContext);
-        checkOriginType(sequenceContext, SequenceContext.ROOT, Class.class);
-        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
+        checkContextNotNull(sequenceContext, SequenceContext.ROOT);
+        SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
         if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceContext.getRoot())) return;
-        this.blockedSequences.put((UUID) sequenceContext.getId(), (Class<? extends T>) sequenceContext.getRoot());
+        this.blockedSequences.put(sequenceContext.getId(), sequenceContext.getRoot());
     }
 
     /**
@@ -165,11 +165,11 @@ public class SequenceManager<T> {
      */
     public void unblock(final SequenceContext sequenceContext) {
         checkNotNull(sequenceContext);
-        checkOriginType(sequenceContext, SequenceContext.ROOT, Class.class);
-        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
+        checkContextNotNull(sequenceContext, SequenceContext.ROOT);
+        SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
         if (!this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceContext.getRoot())) return;
-        this.blockedSequences.put((UUID) sequenceContext.getId(), (Class<? extends T>) sequenceContext.getRoot());
+        this.blockedSequences.put(sequenceContext.getId(), sequenceContext.getRoot());
     }
 
     /**
@@ -203,9 +203,9 @@ public class SequenceManager<T> {
      */
     public void clean(final SequenceContext sequenceContext, boolean force) {
         checkNotNull(sequenceContext);
-        checkOriginType(sequenceContext, SequenceContext.ID, UUID.class);
+        SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
-        this.sequences.get((UUID) sequenceContext.getId()).removeIf(sequence ->
+        this.sequences.get(sequenceContext.getId()).removeIf(sequence ->
                 force || sequence.getState().equals(Sequence.State.EXPIRED));
     }
 
@@ -270,7 +270,7 @@ public class SequenceManager<T> {
 
             // 1. Check for matching sequence.
 
-            if (this.sequences.get((UUID) sequenceContext.getId()).stream()
+            if (this.sequences.get(sequenceContext.getId()).stream()
                     .anyMatch(playerSequence -> playerSequence.getBlueprint()
                     .equals(sequenceBlueprint))) continue;
 
@@ -283,7 +283,7 @@ public class SequenceManager<T> {
                     continue;
                 }
 
-                this.sequences.put((UUID) sequenceContext.getId(), sequence);
+                this.sequences.put(sequenceContext.getId(), sequence);
             }
         }
     }
