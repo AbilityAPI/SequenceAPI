@@ -14,7 +14,7 @@ public class SequencePreconditions {
                                             final Class<?> type) throws NoSuchElementException {
         if (sequenceContext.get(key) == null) throw new NoSuchElementException("Element for key '" + key + "' was null.");
 
-        if (sequenceContext.get(key).getClass().isAssignableFrom(type))
+        if (!sequenceContext.get(key).getClass().isAssignableFrom(type))
             throw new NoSuchElementException("Element for key '" + key + "' was not found inside { " + sequenceContext.toString() + " }.");
     }
 
@@ -24,7 +24,7 @@ public class SequencePreconditions {
                                             final String message) throws NoSuchElementException {
         if (sequenceContext.get(key) == null) throw new NoSuchElementException("Element for key '" + key + "' was null.");
 
-        if (sequenceContext.get(key).getClass().isAssignableFrom(type))
+        if (!sequenceContext.get(key).getClass().isAssignableFrom(type))
             throw new NoSuchElementException(message);
     }
 
