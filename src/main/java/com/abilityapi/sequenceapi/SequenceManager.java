@@ -1,5 +1,6 @@
 package com.abilityapi.sequenceapi;
 
+import com.abilityapi.sequenceapi.util.Ordered;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
@@ -20,7 +21,9 @@ public class SequenceManager<T> {
 
     private final SequenceRegistry<T> sequenceRegistry;
     private final Multimap<UUID, Sequence<T>> sequences = HashMultimap.create();
-    private final Multimap<UUID, Class<? extends T>> blockedSequences = HashMultimap.create();
+    private final Multimap<UUID, Ordered<Class<? extends T>>> blockedSequences = HashMultimap.create();
+
+    private long blockOrderIndex = 0;
 
     public SequenceManager(final SequenceRegistry<T> sequenceRegistry) {
         this.sequenceRegistry = sequenceRegistry;
@@ -43,9 +46,11 @@ public class SequenceManager<T> {
         SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
         this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
-           if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
+            for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
+                if (block.getElement().equals(sequence.getTrigger())) return true;
+            }
 
-           return this._invokeObserver(event, sequence, sequenceContext);
+            return this._invokeObserver(event, sequence, sequenceContext);
         });
 
         // Creates a new sequence from a blueprint.
@@ -72,8 +77,11 @@ public class SequenceManager<T> {
         SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
         this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
+            for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
+                if (block.getElement().equals(sequence.getTrigger())) return true;
+            }
+
             if (!predicate.test(sequence)) return false;
-            if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
 
             return this._invokeObserver(event, sequence, sequenceContext);
         });
@@ -98,7 +106,9 @@ public class SequenceManager<T> {
         SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
         this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
-            if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
+            for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
+                if (block.getElement().equals(sequence.getTrigger())) return true;
+            }
 
             return this._invokeScheduler(sequence, sequenceContext);
         });
@@ -121,8 +131,11 @@ public class SequenceManager<T> {
         SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
         this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
+            for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
+                if (block.getElement().equals(sequence.getTrigger())) return true;
+            }
+
             if (!predicate.test(sequence)) return false;
-            if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
 
             return this._invokeScheduler(sequence, sequenceContext);
         });
@@ -133,21 +146,26 @@ public class SequenceManager<T> {
      * to the block list, which is removed on the next invocation.
      *
      * <p>The {@link SequenceContext} must contain a unique
-     * {@link SequenceContext#ID} to provide ownership over
+     * {@link SequenceContext#OWNER} to provide ownership over
      * a running {@link Sequence}.
      *
      * It must also contain a {@link SequenceContext#ROOT} that
      * is an event class trigger of {@link T} to filter.</p>
      *
      * @param sequenceContext the sequence context
+     * @return the block id
      */
-    public void block(final SequenceContext sequenceContext) {
+    public long block(final SequenceContext sequenceContext) {
         checkNotNull(sequenceContext);
         checkContextNotNull(sequenceContext, SequenceContext.ROOT);
-        SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
+        SequencePreconditions.checkContextType(sequenceContext, SequenceContext.OWNER, UUID.class);
 
-        if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceContext.getRoot())) return;
-        this.blockedSequences.put(sequenceContext.getId(), sequenceContext.getRoot());
+        final long index = this.blockOrderIndex++;
+
+        if (this.blockedSequences.containsEntry(sequenceContext.getOwner(), new Ordered<>(index, sequenceContext.getRoot()))) return index;
+        this.blockedSequences.put(sequenceContext.getOwner(), new Ordered<>(index, sequenceContext.getRoot()));
+
+        return index;
     }
 
     /**
@@ -166,10 +184,11 @@ public class SequenceManager<T> {
     public void unblock(final SequenceContext sequenceContext) {
         checkNotNull(sequenceContext);
         checkContextNotNull(sequenceContext, SequenceContext.ROOT);
-        SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
+        SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, Long.class);
+        SequencePreconditions.checkContextType(sequenceContext, SequenceContext.OWNER, UUID.class);
 
-        if (!this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceContext.getRoot())) return;
-        this.blockedSequences.put(sequenceContext.getId(), sequenceContext.getRoot());
+        if (!this.blockedSequences.containsEntry(sequenceContext.getOwner(), new Ordered<>(sequenceContext.getId(), sequenceContext.getRoot()))) return;
+        this.blockedSequences.put(sequenceContext.getOwner(), new Ordered<>(sequenceContext.getId(), sequenceContext.getRoot()));
     }
 
     /**
@@ -212,7 +231,9 @@ public class SequenceManager<T> {
     public boolean _invokeObserver(final T event, final Sequence<T> sequence, final SequenceContext sequenceContext) {
         boolean remove = false;
 
-        if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequence.getTrigger())) return true;
+        for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
+            if (block.getElement().equals(sequence.getTrigger())) return true;
+        }
 
         // 1. Apply the sequence.
 
@@ -240,6 +261,10 @@ public class SequenceManager<T> {
     public boolean _invokeScheduler(final Sequence<T> sequence, final SequenceContext sequenceContext) {
         boolean remove = false;
 
+        for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
+            if (block.getElement().equals(sequence.getTrigger())) return true;
+        }
+
         // 1. Apply the sequence.
 
         sequence.applySchedule(sequenceContext);
@@ -265,8 +290,13 @@ public class SequenceManager<T> {
 
     public void _createBlueprints(final T event, final SequenceContext sequenceContext) {
         for (SequenceBlueprint<T> sequenceBlueprint : this.sequenceRegistry) {
+            boolean skip = false;
 
-            if (this.blockedSequences.containsEntry(sequenceContext.getId(), sequenceBlueprint.getTrigger())) continue;
+            for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
+                if (block.getElement().equals(sequenceBlueprint.getTrigger())) skip = true;
+            }
+
+            if (skip) continue;
 
             // 1. Check for matching sequence.
 
