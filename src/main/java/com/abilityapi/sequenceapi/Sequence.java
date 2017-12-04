@@ -24,6 +24,8 @@ public class Sequence<T> {
 
     private int index = 0;
     private long ticks = 0;
+    private int initialObserveSize = 0;
+    private int initialScheduleSize = 0;
     private long lastExecutionTime = System.currentTimeMillis();
     private State state = State.INACTIVE;
 
@@ -36,6 +38,9 @@ public class Sequence<T> {
 
         this.scheduleActions.putAll(scheduleActions);
         this.observerActions.putAll(observerActions);
+
+        this.initialObserveSize = this.observerActions.size();
+        this.initialScheduleSize = this.scheduleActions.size();
     }
 
     /**
@@ -50,6 +55,7 @@ public class Sequence<T> {
         final Iterator<ObserverAction<T>> iterator = this.observerActions.keySet().iterator();
 
         if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
+        if (this.initialObserveSize < 1) return false;
 
         if (iterator.hasNext()) {
             final ObserverAction<T> action = iterator.next();
@@ -102,6 +108,7 @@ public class Sequence<T> {
         final Iterator<ScheduleAction> iterator = this.scheduleActions.keySet().iterator();
 
         if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
+        if (this.initialScheduleSize < 1) return false;
 
         this.ticks++;
 
@@ -152,7 +159,7 @@ public class Sequence<T> {
 
         this.lastExecutionTime = System.currentTimeMillis();
 
-        if (this.index >= this.observerActions.size() + this.scheduleActions.size()) this.state = State.FINISHED;
+        if (this.index >= this.initialObserveSize + this.initialScheduleSize) this.state = State.FINISHED;
 
         return true;
     }
