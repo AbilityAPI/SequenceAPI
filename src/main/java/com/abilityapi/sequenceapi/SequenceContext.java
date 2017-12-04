@@ -76,7 +76,7 @@ public class SequenceContext {
             return this;
         }
 
-        public final Builder id(final UUID value) {
+        public final Builder id(final Object value) {
             if (!this.keysUsed.contains(SequenceContext.ID)) {
                 this.context.put(SequenceContext.ID, value);
                 this.keysUsed.add(SequenceContext.ID);
