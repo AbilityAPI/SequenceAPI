@@ -173,8 +173,11 @@ public class SequenceManager<T> {
      * {@link SequenceContext} root in the block list.
      *
      * <p>The {@link SequenceContext} must contain a unique
-     * {@link SequenceContext#ID} to provide ownership over
+     * {@link SequenceContext#OWNER} to provide ownership over
      * a running {@link Sequence}.
+     *
+     * It will also look for a {@link SequenceContext#ID} to
+     * provide the order index.
      *
      * It must also contain a {@link SequenceContext#ROOT} that
      * is an event class trigger of {@link T} to filter.</p>
