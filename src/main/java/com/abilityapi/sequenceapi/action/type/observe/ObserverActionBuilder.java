@@ -1,8 +1,6 @@
 package com.abilityapi.sequenceapi.action.type.observe;
 
-import com.abilityapi.sequenceapi.Sequence;
 import com.abilityapi.sequenceapi.SequenceBlueprint;
-import com.abilityapi.sequenceapi.SequenceBuilder;
 import com.abilityapi.sequenceapi.SequenceContext;
 import com.abilityapi.sequenceapi.action.ActionBuilder;
 import com.abilityapi.sequenceapi.action.condition.Condition;
@@ -19,9 +17,9 @@ import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBuilder;
 public class ObserverActionBuilder<T> implements ActionBuilder<T> {
 
     private final ObserverAction<T> action;
-    private final SequenceBuilder<T> sequenceBuilder;
+    private final ActionBuilder<T> sequenceBuilder;
 
-    public ObserverActionBuilder(final SequenceBuilder<T> sequenceBuilder, final ObserverAction<T> action) {
+    public ObserverActionBuilder(final ActionBuilder<T> sequenceBuilder, final ObserverAction<T> action) {
         this.action = action;
         this.sequenceBuilder = sequenceBuilder;
     }
@@ -85,14 +83,7 @@ public class ObserverActionBuilder<T> implements ActionBuilder<T> {
         return this.sequenceBuilder.schedule(scheduleAction);
     }
 
-    /**
-     * Returns a new {@link SequenceBlueprint} containing
-     * the {@link Sequence} of {@link ObserverAction}s and
-     * {@link ScheduleAction}s.
-     *
-     * @param sequenceContext the sequence context
-     * @return the sequence blueprint
-     */
+    @Override
     public final SequenceBlueprint<T> build(final SequenceContext sequenceContext) {
         return this.sequenceBuilder.build(sequenceContext);
     }

@@ -54,7 +54,6 @@ public class SequenceManager<T> {
         });
 
         // Creates a new sequence from a blueprint.
-
         this._createBlueprints(event, sequenceContext);
     }
 
@@ -87,7 +86,6 @@ public class SequenceManager<T> {
         });
 
         // Creates a new sequence from a blueprint.
-
         this._createBlueprints(event, sequenceContext);
     }
 
@@ -293,13 +291,6 @@ public class SequenceManager<T> {
 
     public void _createBlueprints(final T event, final SequenceContext sequenceContext) {
         for (SequenceBlueprint<T> sequenceBlueprint : this.sequenceRegistry) {
-            boolean skip = false;
-
-            for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
-                if (block.getElement().equals(sequenceBlueprint.getTrigger())) skip = true;
-            }
-
-            if (skip) continue;
 
             // 1. Check for matching sequence.
 
@@ -312,7 +303,13 @@ public class SequenceManager<T> {
             final Sequence<T> sequence = sequenceBlueprint.create(sequenceContext);
 
             if (sequence.applyObserve(event, sequenceContext)) {
-                if (!sequence.getState().isSafe() || sequence.getState().equals(Sequence.State.FINISHED)) {
+                if (!sequence.getState().isSafe()) {
+                    continue;
+                }
+
+                if (sequence.getState().equals(Sequence.State.FINISHED)) {
+                    // Fire sequence finish hook.
+
                     continue;
                 }
 

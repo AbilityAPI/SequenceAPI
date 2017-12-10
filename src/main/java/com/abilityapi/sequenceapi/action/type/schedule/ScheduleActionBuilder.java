@@ -1,7 +1,6 @@
 package com.abilityapi.sequenceapi.action.type.schedule;
 
 import com.abilityapi.sequenceapi.SequenceBlueprint;
-import com.abilityapi.sequenceapi.SequenceBuilder;
 import com.abilityapi.sequenceapi.SequenceContext;
 import com.abilityapi.sequenceapi.action.ActionBuilder;
 import com.abilityapi.sequenceapi.action.condition.Condition;
@@ -13,10 +12,10 @@ import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
 
 public class ScheduleActionBuilder<T> implements ActionBuilder<T> {
 
-    private final SequenceBuilder<T> sequenceBuilder;
+    private final ActionBuilder<T> sequenceBuilder;
     private final ScheduleAction action;
 
-    public ScheduleActionBuilder(final SequenceBuilder<T> sequenceBuilder, ScheduleAction action) {
+    public ScheduleActionBuilder(final ActionBuilder<T> sequenceBuilder, ScheduleAction action) {
         this.sequenceBuilder = sequenceBuilder;
         this.action = action;
     }
@@ -91,6 +90,7 @@ public class ScheduleActionBuilder<T> implements ActionBuilder<T> {
         return this.sequenceBuilder.schedule(scheduleAction);
     }
 
+    @Override
     public final SequenceBlueprint<T> build(final SequenceContext sequenceContext) {
         return this.sequenceBuilder.build(sequenceContext);
     }

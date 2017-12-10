@@ -1,6 +1,8 @@
 package com.abilityapi.sequenceapi.action;
 
 import com.abilityapi.sequenceapi.Sequence;
+import com.abilityapi.sequenceapi.SequenceBlueprint;
+import com.abilityapi.sequenceapi.SequenceContext;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
@@ -54,5 +56,15 @@ public interface ActionBuilder<T> {
      * @return the schedule action builder
      */
     ScheduleActionBuilder<T> schedule(final ScheduleAction scheduleAction);
+
+    /**
+     * Returns a new {@link SequenceBlueprint} containing
+     * the {@link Sequence} of {@link ObserverAction}s and
+     * {@link ScheduleAction}s.
+     *
+     * @param buildContext the sequence context
+     * @return the sequence blueprint
+     */
+    SequenceBlueprint<T> build(final SequenceContext buildContext);
 
 }

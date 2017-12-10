@@ -24,8 +24,8 @@ public class Sequence<T> {
 
     private int index = 0;
     private long ticks = 0;
-    private int initialObserveSize = 0;
-    private int initialScheduleSize = 0;
+    private int initialObserveSize;
+    private int initialScheduleSize;
     private long lastExecutionTime = System.currentTimeMillis();
     private State state = State.INACTIVE;
 
@@ -60,8 +60,7 @@ public class Sequence<T> {
         if (iterator.hasNext()) {
             final ObserverAction<T> action = iterator.next();
 
-            if (this.observerActions.get(action) != this.index) return false;
-            this.index++;
+            if (this.observerActions.get(action) > this.index++) return false;
 
             final long current = System.currentTimeMillis();
 
@@ -71,13 +70,13 @@ public class Sequence<T> {
 
             // 2. Fail the action if it is being executed before the delay.
 
-            if (this.lastExecutionTime + ((action.getDelay() / 20) * 1000) > current) {
+            if (this.index > 1 && this.lastExecutionTime + ((action.getDelay() / 20) * 1000) > current) {
                 return this.fail(action, sequenceContext);
             }
 
             // 3. Fail the action if it being executed after the expire.
 
-            if (this.lastExecutionTime + ((action.getExpire() / 20) * 1000) < current) {
+            if (this.index > 1 && this.lastExecutionTime + ((action.getExpire() / 20) * 1000) < current) {
                 return this.fail(action, sequenceContext);
             }
 
@@ -115,8 +114,7 @@ public class Sequence<T> {
         if (iterator.hasNext()) {
             final ScheduleAction action = iterator.next();
 
-            if (this.scheduleActions.get(action) != this.index) return false;
-            this.index++;
+            if (this.scheduleActions.get(action) > this.index++) return false;
 
             final long current = System.currentTimeMillis();
 
