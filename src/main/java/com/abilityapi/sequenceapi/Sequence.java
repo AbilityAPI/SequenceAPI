@@ -234,6 +234,7 @@ public class Sequence<T> {
         }
 
         public void update(final Sequence sequence) {
+            // Do not count a finished sequence as an expired one.
             if (sequence.observerActions.isEmpty() && sequence.scheduleActions.isEmpty()) {
                 return;
             }
@@ -252,6 +253,7 @@ public class Sequence<T> {
                 expiredSchedule = sequence.getLastExecutionTime() + ((scheduleAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
             }
 
+            // Allow a null action to pass by one.
             if (isNullable(expiredObserver) && isNullable(expiredSchedule)) sequence.state = State.EXPIRED;
         }
 
