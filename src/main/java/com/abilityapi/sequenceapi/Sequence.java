@@ -90,9 +90,11 @@ public class Sequence<T> {
 
             iterator.remove();
 
-            return this.succeed(action, sequenceContext, false);
-        } else {
-            if ((this.index + 1) == this.initialObserveSize + this.initialScheduleSize) this.state = State.FINISHED;
+            if (!iterator.hasNext()) {
+                if ((this.index + 1) == this.initialObserveSize + this.initialScheduleSize) this.state = State.FINISHED;
+            }
+
+            return this.succeed(action, sequenceContext);
         }
 
         return true;
@@ -131,14 +133,8 @@ public class Sequence<T> {
 
             // 3. Fail the action if it being executed after the expire.
 
-            if (this.lastExecutionTime + ((action.getExpire() / 20) * 1000) < current) {
-                // If this is a repeating task remove it and return success.
-                if (action.getPeriod() != 0 || action.getExpire() != 0) {
-                    iterator.remove();
-
-                    return this.succeed(action, sequenceContext, true);
-                }
-
+            if (this.lastExecutionTime + ((action.getExpire() / 20) * 1000) < current
+                    && action.getPeriod() == 0) {
                 return this.fail(action, sequenceContext);
             }
 
@@ -146,21 +142,24 @@ public class Sequence<T> {
 
             if (!action.apply(sequenceContext)) return this.fail(action, sequenceContext);
 
-            // If this is a delayed task remove it.
-            if (action.getPeriod() == 0 || action.getExpire() == 0) {
+            // If this is a repeating task that will expire next tick OR a delayed task, remove it.
+            if (current + ((action.getPeriod() / 20) * 1000) > this.lastExecutionTime + ((action.getExpire() / 20) * 1000)
+                    && action.getPeriod() != 0) {
                 iterator.remove();
+
+                if (!iterator.hasNext()) {
+                    if ((this.index + 1) == this.initialObserveSize + this.initialScheduleSize) this.state = State.FINISHED;
+                }
             }
 
-            return this.succeed(action, sequenceContext, false);
-        } else {
-            if ((this.index + 1) == this.initialObserveSize + this.initialScheduleSize) this.state = State.FINISHED;
+            return this.succeed(action, sequenceContext);
         }
 
         return true;
     }
 
-    public boolean succeed(final Action action, final SequenceContext sequenceContext, boolean dirty) {
-        if (!dirty) action.success(sequenceContext);
+    public boolean succeed(final Action action, final SequenceContext sequenceContext) {
+        action.success(sequenceContext);
 
         this.lastExecutionTime = System.currentTimeMillis();
 
