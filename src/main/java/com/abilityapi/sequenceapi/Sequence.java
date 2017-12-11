@@ -26,7 +26,7 @@ public class Sequence<T> {
     private long ticks = 0;
     private int initialObserveSize;
     private int initialScheduleSize;
-    private long lastExecutionTime = System.currentTimeMillis();
+    private long lastTime = System.currentTimeMillis();
     private State state = State.INACTIVE;
 
     public Sequence(final SequenceContext sequenceContext,
@@ -70,13 +70,13 @@ public class Sequence<T> {
 
             // 2. Fail the action if it is being executed before the delay.
 
-            if (this.index > 1 && this.lastExecutionTime + ((action.getDelay() / 20) * 1000) > current) {
+            if (this.index > 1 && this.lastTime + ((action.getDelay() / 20) * 1000) > current) {
                 return this.fail(action, sequenceContext);
             }
 
             // 3. Fail the action if it being executed after the expire.
 
-            if (this.index > 1 && this.lastExecutionTime + ((action.getExpire() / 20) * 1000) < current) {
+            if (this.index > 1 && this.lastTime + ((action.getExpire() / 20) * 1000) < current) {
                 return this.fail(action, sequenceContext);
             }
 
@@ -124,17 +124,18 @@ public class Sequence<T> {
 
             // 1. Check that the tick is being executed in the period wanted.
 
-            if (this.ticks % action.getPeriod() != 0) return false;
+            if (action.getPeriod() != 0 && this.ticks % action.getPeriod() != 0) return false;
 
             // 2. Fail the action if it is being executed before the delay.
 
-            if (this.lastExecutionTime + ((action.getDelay() / 20) * 1000) > current)
+            if (this.lastTime + ((action.getDelay() / 20) * 1000) > current
+                    || action.getDelay() == 0)
                 return this.fail(action, sequenceContext);
 
             // 3. Fail the action if it being executed after the expire.
 
-            if (this.lastExecutionTime + ((action.getExpire() / 20) * 1000) < current
-                    && action.getPeriod() == 0) {
+            if (this.lastTime + ((action.getExpire() / 20) * 1000) < current
+                    || action.getExpire() == 0) {
                 return this.fail(action, sequenceContext);
             }
 
@@ -143,8 +144,8 @@ public class Sequence<T> {
             if (!action.apply(sequenceContext)) return this.fail(action, sequenceContext);
 
             // If this is a repeating task that will expire next tick OR a delayed task, remove it.
-            if (current + ((action.getPeriod() / 20) * 1000) > this.lastExecutionTime + ((action.getExpire() / 20) * 1000)
-                    && action.getPeriod() != 0) {
+            if (action.getPeriod() == 0
+                    || current + ((action.getPeriod() / 20) * 1000) > this.lastTime + ((action.getExpire() / 20) * 1000)) {
                 iterator.remove();
 
                 if (!iterator.hasNext()) {
@@ -161,7 +162,7 @@ public class Sequence<T> {
     public boolean succeed(final Action action, final SequenceContext sequenceContext) {
         action.success(sequenceContext);
 
-        this.lastExecutionTime = System.currentTimeMillis();
+        this.lastTime = System.currentTimeMillis();
 
         return true;
     }
@@ -169,7 +170,7 @@ public class Sequence<T> {
     public boolean fail(final Action action, final SequenceContext sequenceContext) {
         this.state = action.failure(sequenceContext) ? State.CANCELLED : this.state;
 
-        this.lastExecutionTime = System.currentTimeMillis();
+        this.lastTime = System.currentTimeMillis();
 
         return false;
     }
@@ -207,8 +208,8 @@ public class Sequence<T> {
      *
      * @return the last action time
      */
-    public final long getLastExecutionTime() {
-        return this.lastExecutionTime;
+    public final long getLastActionTime() {
+        return this.lastTime;
     }
 
     /**
@@ -245,11 +246,11 @@ public class Sequence<T> {
             Boolean expiredSchedule = null;
 
             if (observeAction != null) {
-                expiredObserver = sequence.getLastExecutionTime() + ((observeAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
+                expiredObserver = sequence.getLastActionTime() + ((observeAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
             }
 
             if (scheduleAction != null) {
-                expiredSchedule = sequence.getLastExecutionTime() + ((scheduleAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
+                expiredSchedule = sequence.getLastActionTime() + ((scheduleAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
             }
 
             // Allow a null action to pass by one.
