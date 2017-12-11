@@ -226,6 +226,8 @@ public class SequenceManager<T> {
         SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
         this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
+            if (sequence.getState().equals(Sequence.State.FINISHED)) return force;
+
             sequence.getState().update(sequence);
 
             return force || sequence.getState().equals(Sequence.State.EXPIRED);

@@ -129,7 +129,7 @@ public class Sequence<T> {
             // 2. Fail the action if it is being executed before the delay.
 
             if (this.lastTime + ((action.getDelay() / 20) * 1000) > current
-                    || action.getDelay() == 0)
+                    && action.getDelay() != 0)
                 return this.fail(action, sequenceContext);
 
             // 3. Fail the action if it being executed after the expire.
@@ -242,27 +242,15 @@ public class Sequence<T> {
             ObserverAction observeAction = (ObserverAction) sequence.observerActions.keySet().toArray()[0];
             ScheduleAction scheduleAction = (ScheduleAction) sequence.scheduleActions.keySet().toArray()[0];
 
-            Boolean expiredObserver = null;
-            Boolean expiredSchedule = null;
-
-            if (observeAction != null) {
-                expiredObserver = sequence.getLastActionTime() + ((observeAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
-            }
-
-            if (scheduleAction != null) {
-                expiredSchedule = sequence.getLastActionTime() + ((scheduleAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
-            }
+            boolean expiredObserver = observeAction == null || sequence.getLastActionTime() + ((observeAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
+            boolean expiredSchedule = scheduleAction == null || sequence.getLastActionTime() + ((scheduleAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
 
             // Allow a null action to pass by one.
-            if (isNullable(expiredObserver) && isNullable(expiredSchedule)) sequence.state = State.EXPIRED;
+            if (expiredObserver && expiredSchedule) sequence.state = State.EXPIRED;
         }
 
         public final boolean isSafe() {
             return this.safe;
-        }
-
-        private boolean isNullable(final Boolean value) {
-            return value == null || value;
         }
     }
 }
