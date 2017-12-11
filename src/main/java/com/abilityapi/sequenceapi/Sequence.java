@@ -4,9 +4,9 @@ import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Represents an order of {@link Action}s
@@ -19,28 +19,23 @@ public class Sequence<T> {
 
     private final SequenceContext sequenceContext;
     private final SequenceBlueprint<T> sequenceBlueprint;
-    private final Map<ScheduleAction, Integer> scheduleActions = new HashMap<>();
-    private final Map<ObserverAction<T>, Integer> observerActions = new HashMap<>();
+
+    private final List<Action> actions;
+    private final int actionsSize;
 
     private int index = 0;
     private long ticks = 0;
-    private int initialObserveSize;
-    private int initialScheduleSize;
     private long lastTime = System.currentTimeMillis();
     private State state = State.INACTIVE;
 
     public Sequence(final SequenceContext sequenceContext,
                     final SequenceBlueprint<T> sequenceBlueprint,
-                    final Map<ScheduleAction, Integer> scheduleActions,
-                    final Map<ObserverAction<T>, Integer> observerActions) {
+                    final List<Action> actions) {
         this.sequenceContext = sequenceContext;
         this.sequenceBlueprint = sequenceBlueprint;
 
-        this.scheduleActions.putAll(scheduleActions);
-        this.observerActions.putAll(observerActions);
-
-        this.initialObserveSize = this.observerActions.size();
-        this.initialScheduleSize = this.scheduleActions.size();
+        this.actions = new ArrayList<>(actions);
+        this.actionsSize = actions.size();
     }
 
     /**
@@ -52,15 +47,22 @@ public class Sequence<T> {
      * @return true if the action was successful and false if it was not
      */
     public boolean applyObserve(final T event, final SequenceContext sequenceContext) {
-        final Iterator<ObserverAction<T>> iterator = this.observerActions.keySet().iterator();
+        final ListIterator<Action> iterator = this.actions.listIterator();
 
-        if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
-        if (this.initialObserveSize < 1) return false;
+        if (this.actionsSize < 1) return false;
 
         if (iterator.hasNext()) {
-            final ObserverAction<T> action = iterator.next();
+            final int actionIndex = iterator.nextIndex();
+            final Action rawAction = iterator.next();
 
-            if (this.observerActions.get(action) > this.index++) return false;
+            final ObserverAction<T> action;
+            if (rawAction instanceof ObserverAction) {
+                action = (ObserverAction<T>) rawAction;
+            } else return false;
+
+            if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
+
+            if (actionIndex > this.index++) return false;
 
             final long current = System.currentTimeMillis();
 
@@ -91,7 +93,7 @@ public class Sequence<T> {
             iterator.remove();
 
             if (!iterator.hasNext()) {
-                if ((this.index + 1) == this.initialObserveSize + this.initialScheduleSize) this.state = State.FINISHED;
+                if (this.index == this.actionsSize) this.state = State.FINISHED;
             }
 
             return this.succeed(action, sequenceContext);
@@ -108,17 +110,24 @@ public class Sequence<T> {
      * @return true if the action was successful and false if it was not
      */
     public boolean applySchedule(final SequenceContext sequenceContext) {
-        final Iterator<ScheduleAction> iterator = this.scheduleActions.keySet().iterator();
+        final ListIterator<Action> iterator = this.actions.listIterator();
 
         if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
-        if (this.initialScheduleSize < 1) return false;
 
         this.ticks++;
 
         if (iterator.hasNext()) {
-            final ScheduleAction action = iterator.next();
+            final int actionIndex = iterator.nextIndex();
+            final Action rawAction = iterator.next();
 
-            if (this.scheduleActions.get(action) > this.index++) return false;
+            final ScheduleAction action;
+            if (rawAction instanceof ObserverAction) {
+                action = (ScheduleAction) rawAction;
+            } else return false;
+
+            if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
+
+            if (actionIndex > this.index++) return false;
 
             final long current = System.currentTimeMillis();
 
@@ -149,7 +158,7 @@ public class Sequence<T> {
                 iterator.remove();
 
                 if (!iterator.hasNext()) {
-                    if ((this.index + 1) == this.initialObserveSize + this.initialScheduleSize) this.state = State.FINISHED;
+                    if (this.index == this.actionsSize) this.state = State.FINISHED;
                 }
             }
 
@@ -234,19 +243,14 @@ public class Sequence<T> {
         }
 
         public void update(final Sequence sequence) {
-            // Do not count a finished sequence as an expired one.
-            if (sequence.observerActions.isEmpty() && sequence.scheduleActions.isEmpty()) {
+            // Set no more actions as expired.
+            if (sequence.actions.isEmpty()) {
+                sequence.state = State.EXPIRED;
                 return;
             }
 
-            ObserverAction observeAction = (ObserverAction) sequence.observerActions.keySet().toArray()[0];
-            ScheduleAction scheduleAction = (ScheduleAction) sequence.scheduleActions.keySet().toArray()[0];
-
-            boolean expiredObserver = observeAction == null || sequence.getLastActionTime() + ((observeAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
-            boolean expiredSchedule = scheduleAction == null || sequence.getLastActionTime() + ((scheduleAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
-
-            // Allow a null action to pass by one.
-            if (expiredObserver && expiredSchedule) sequence.state = State.EXPIRED;
+            Action action = (Action) sequence.actions.get(0);
+            if (sequence.getLastActionTime() + ((action.getExpire() / 20) * 1000) < System.currentTimeMillis()) sequence.state = State.EXPIRED;
         }
 
         public final boolean isSafe() {

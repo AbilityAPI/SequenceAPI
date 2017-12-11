@@ -1,23 +1,20 @@
 package com.abilityapi.sequenceapi;
 
+import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.action.ActionBuilder;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBuilder;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 public class SequenceBuilder<T> implements ActionBuilder<T> {
 
-    private int index = 0;
-    private final Map<ScheduleAction, Integer> scheduleActions = new HashMap<>();
-    private final Map<ObserverAction<T>, Integer> observerActions = new HashMap<>();
+    private final List<Action> actions = new ArrayList<>();
 
     @Override
     public ObserverActionBuilder<T> observe(final Class<? extends T> event) {
@@ -31,7 +28,7 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
 
     @Override
     public ObserverActionBuilder<T> observe(final ObserverAction<T> action) {
-        this.observerActions.put(action, this.index++);
+        this.actions.add(action);
 
         return new ObserverActionBuilder<>(this, action);
     }
@@ -43,7 +40,7 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
 
     @Override
     public ScheduleActionBuilder<T> schedule(final ScheduleAction action) {
-        this.scheduleActions.put(action, this.index++);
+        this.actions.add(action);
 
         return new ScheduleActionBuilder<>(this, action);
     }
@@ -53,24 +50,19 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
         return new SequenceBlueprint<T>() {
             @Override
             public final Sequence<T> create(final SequenceContext createSequenceContext) {
-                final SequenceContext createContext = SequenceContext.from(createSequenceContext).merge(buildContext).build();
-                this.validateSequence();
+                final SequenceContext createContext = SequenceContext.from(createSequenceContext)
+                        .custom("trigger", getTrigger())
+                        .merge(buildContext).build();
 
-                return new Sequence<>(createContext, this, SequenceBuilder.this.scheduleActions, SequenceBuilder.this.observerActions);
+                return new Sequence<>(createContext, this, SequenceBuilder.this.actions);
             }
 
             @Override
             public final Class<? extends T> getTrigger() {
-                final BiMap<Integer, ObserverAction<T>> observers = HashBiMap.create(this.validateSequence()).inverse();
-
-                return observers.get(0).getEventClass();
-            }
-
-            private Map<ObserverAction<T>, Integer> validateSequence() throws NoSuchElementException {
-                if (SequenceBuilder.this.observerActions.isEmpty() || !SequenceBuilder.this.observerActions.containsValue(0)) throw
-                        new NoSuchElementException("Sequence could not be established without an initial observer.");
-
-                return SequenceBuilder.this.observerActions;
+                if (SequenceBuilder.this.actions.isEmpty()) throw new NoSuchElementException("Sequence could not be established without an initial observer action.");
+                if (SequenceBuilder.this.actions.get(0) instanceof ObserverAction) {
+                    return ((ObserverAction<T>) SequenceBuilder.this.actions.get(0)).getEventClass();
+                } else throw new ClassCastException("Sequence could not be established without an initial observer action.");
             }
         };
     }
