@@ -90,7 +90,9 @@ public class Sequence<T> {
 
             iterator.remove();
 
-            return this.succeed(action, sequenceContext);
+            return this.succeed(action, sequenceContext, false);
+        } else {
+            if ((this.index + 1) == this.initialObserveSize + this.initialScheduleSize) this.state = State.FINISHED;
         }
 
         return true;
@@ -130,10 +132,11 @@ public class Sequence<T> {
             // 3. Fail the action if it being executed after the expire.
 
             if (this.lastExecutionTime + ((action.getExpire() / 20) * 1000) < current) {
-                if (action.getRepeats() != 0) {
+                // If this is a repeating task remove it and return success.
+                if (action.getPeriod() != 0 || action.getExpire() != 0) {
                     iterator.remove();
 
-                    return this.succeed(action, sequenceContext);
+                    return this.succeed(action, sequenceContext, true);
                 }
 
                 return this.fail(action, sequenceContext);
@@ -143,21 +146,23 @@ public class Sequence<T> {
 
             if (!action.apply(sequenceContext)) return this.fail(action, sequenceContext);
 
-            // 5. Succeed the action, remove it and set finish if there are no more actions left.
-            iterator.remove();
+            // If this is a delayed task remove it.
+            if (action.getPeriod() == 0 || action.getExpire() == 0) {
+                iterator.remove();
+            }
 
-            return this.succeed(action, sequenceContext);
+            return this.succeed(action, sequenceContext, false);
+        } else {
+            if ((this.index + 1) == this.initialObserveSize + this.initialScheduleSize) this.state = State.FINISHED;
         }
 
         return true;
     }
 
-    public boolean succeed(final Action action, final SequenceContext sequenceContext) {
-        action.success(sequenceContext);
+    public boolean succeed(final Action action, final SequenceContext sequenceContext, boolean dirty) {
+        if (!dirty) action.success(sequenceContext);
 
         this.lastExecutionTime = System.currentTimeMillis();
-
-        if (this.index >= this.initialObserveSize + this.initialScheduleSize) this.state = State.FINISHED;
 
         return true;
     }
