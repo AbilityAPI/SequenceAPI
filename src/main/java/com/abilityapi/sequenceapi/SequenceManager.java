@@ -225,8 +225,11 @@ public class SequenceManager<T> {
         checkNotNull(sequenceContext);
         SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
 
-        this.sequences.get(sequenceContext.getId()).removeIf(sequence ->
-                force || sequence.getState().equals(Sequence.State.EXPIRED));
+        this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
+            sequence.getState().update(sequence);
+
+            return force || sequence.getState().equals(Sequence.State.EXPIRED);
+        });
     }
 
     public boolean _invokeObserver(final T event, final Sequence<T> sequence, final SequenceContext sequenceContext) {

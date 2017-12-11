@@ -233,8 +233,34 @@ public class Sequence<T> {
             this.safe = safe;
         }
 
+        public void update(final Sequence sequence) {
+            if (sequence.observerActions.isEmpty() && sequence.scheduleActions.isEmpty()) {
+                return;
+            }
+
+            ObserverAction observeAction = (ObserverAction) sequence.observerActions.keySet().toArray()[0];
+            ScheduleAction scheduleAction = (ScheduleAction) sequence.scheduleActions.keySet().toArray()[0];
+
+            Boolean expiredObserver = null;
+            Boolean expiredSchedule = null;
+
+            if (observeAction != null) {
+                expiredObserver = sequence.getLastExecutionTime() + ((observeAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
+            }
+
+            if (scheduleAction != null) {
+                expiredSchedule = sequence.getLastExecutionTime() + ((scheduleAction.getExpire() / 20) * 1000) < System.currentTimeMillis();
+            }
+
+            if (isNullable(expiredObserver) && isNullable(expiredSchedule)) sequence.state = State.EXPIRED;
+        }
+
         public final boolean isSafe() {
             return this.safe;
+        }
+
+        private boolean isNullable(final Boolean value) {
+            return value == null || value;
         }
     }
 }
