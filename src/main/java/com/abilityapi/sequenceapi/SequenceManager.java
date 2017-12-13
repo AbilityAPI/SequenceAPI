@@ -2,6 +2,7 @@ package com.abilityapi.sequenceapi;
 
 import com.abilityapi.sequenceapi.util.Ordered;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
 import java.util.UUID;
@@ -189,7 +190,7 @@ public class SequenceManager<T> {
         SequencePreconditions.checkContextType(sequenceContext, SequenceContext.OWNER, UUID.class);
 
         if (!this.blockedSequences.containsEntry(sequenceContext.getOwner(), new Ordered<>(sequenceContext.getId(), sequenceContext.getRoot()))) return;
-        this.blockedSequences.put(sequenceContext.getOwner(), new Ordered<>(sequenceContext.getId(), sequenceContext.getRoot()));
+        this.blockedSequences.remove(sequenceContext.getOwner(), new Ordered<>(sequenceContext.getId(), sequenceContext.getRoot()));
     }
 
     /**
@@ -203,7 +204,7 @@ public class SequenceManager<T> {
      * @param force false to remove safely, true to remove with force
      */
     public void clean(boolean force) {
-        this.sequences.keySet().forEach(uuid -> this.clean(SequenceContext.builder().id(uuid).build(), force));
+        ImmutableSet.copyOf(this.sequences.keySet()).forEach(uuid -> this.clean(SequenceContext.builder().id(uuid).build(), force));
     }
 
     /**
@@ -237,10 +238,6 @@ public class SequenceManager<T> {
     public boolean _invokeObserver(final T event, final Sequence<T> sequence, final SequenceContext sequenceContext) {
         boolean remove = false;
 
-        for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
-            if (block.getElement().equals(sequence.getTrigger())) return true;
-        }
-
         // 1. Apply the sequence.
 
         sequence.applyObserve(event, sequenceContext);
@@ -266,10 +263,6 @@ public class SequenceManager<T> {
 
     public boolean _invokeScheduler(final Sequence<T> sequence, final SequenceContext sequenceContext) {
         boolean remove = false;
-
-        for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
-            if (block.getElement().equals(sequence.getTrigger())) return true;
-        }
 
         // 1. Apply the sequence.
 

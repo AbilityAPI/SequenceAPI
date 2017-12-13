@@ -1,8 +1,8 @@
 package com.abilityapi.sequenceapi;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
@@ -14,7 +14,7 @@ import java.util.Set;
  */
 public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
 
-    private final BiMap<Class<? extends SequenceBlueprint>, SequenceBlueprint<T>> registry = HashBiMap.create();
+    private final HashMap<Class<? extends SequenceBlueprint>, SequenceBlueprint<T>> registry = Maps.newHashMap();
 
     /**
      * Puts the {@link SequenceBlueprint} into this registry.
@@ -23,8 +23,7 @@ public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
      * @return true if the blueprint was added, false if it was not
      */
     public final boolean put(final SequenceBlueprint<T> sequenceBlueprint) {
-        if (this.registry.containsKey(sequenceBlueprint.getClass())) return false;
-        this.registry.put(sequenceBlueprint.getClass(), sequenceBlueprint);
+        this.registry.put(sequenceBlueprint.getContext().getRoot(), sequenceBlueprint);
 
         return true;
     }
@@ -37,18 +36,7 @@ public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
      * @return the sequence blueprint
      */
     public final Optional<SequenceBlueprint<T>> get(final Class<? extends SequenceBlueprint> key) {
-        if (!this.registry.containsKey(key)) return Optional.empty();
         return Optional.ofNullable(this.registry.get(key));
-    }
-
-    /**
-     * Returns the {@link Class} key that represents its {@link SequenceBlueprint}.
-     *
-     * @param sequenceBlueprint the blueprint
-     * @return the sequence key, or {@code null} if they check is not contained in this registry
-     */
-    public final Class<?> key(final SequenceBlueprint<T> sequenceBlueprint) {
-        return this.registry.inverse().get(sequenceBlueprint);
     }
 
     /**

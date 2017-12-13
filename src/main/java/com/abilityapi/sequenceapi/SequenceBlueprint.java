@@ -27,4 +27,12 @@ public interface SequenceBlueprint<T> {
      */
     Class<? extends T> getTrigger();
 
+    /**
+     * Returns the {@link SequenceContext} for the creation
+     * of this blueprint.
+     *
+     * @return the creation context
+     */
+    SequenceContext getContext();
+
 }

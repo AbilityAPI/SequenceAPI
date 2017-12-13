@@ -64,6 +64,11 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
                     return ((ObserverAction<T>) SequenceBuilder.this.actions.get(0)).getEventClass();
                 } else throw new ClassCastException("Sequence could not be established without an initial observer action.");
             }
+
+            @Override
+            public SequenceContext getContext() {
+                return buildContext;
+            }
         };
     }
 }

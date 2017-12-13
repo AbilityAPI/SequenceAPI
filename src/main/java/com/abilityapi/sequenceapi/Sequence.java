@@ -49,10 +49,7 @@ public class Sequence<T> {
     public boolean applyObserve(final T event, final SequenceContext sequenceContext) {
         final ListIterator<Action> iterator = this.actions.listIterator();
 
-        if (this.actionsSize < 1) return false;
-
         if (iterator.hasNext()) {
-            final int actionIndex = iterator.nextIndex();
             final Action rawAction = iterator.next();
 
             final ObserverAction<T> action;
@@ -62,8 +59,6 @@ public class Sequence<T> {
 
             if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
 
-            if (actionIndex > this.index++) return false;
-
             final long current = System.currentTimeMillis();
 
             // 1. Check that the event is the correct one for this action.
@@ -72,13 +67,13 @@ public class Sequence<T> {
 
             // 2. Fail the action if it is being executed before the delay.
 
-            if (this.index > 1 && this.lastTime + ((action.getDelay() / 20) * 1000) > current) {
+            if (this.index > 0 && this.lastTime + ((action.getDelay() / 20) * 1000) > current) {
                 return this.fail(action, sequenceContext);
             }
 
             // 3. Fail the action if it being executed after the expire.
 
-            if (this.index > 1 && this.lastTime + ((action.getExpire() / 20) * 1000) < current) {
+            if (this.index > 0 && this.lastTime + ((action.getExpire() / 20) * 1000) < current) {
                 return this.fail(action, sequenceContext);
             }
 
@@ -88,7 +83,8 @@ public class Sequence<T> {
                 return this.fail(action, sequenceContext);
             }
 
-            // 5. Succeed the action, remove it and set finish if there are no more actions left.
+            // 5. Succeed the action, remove it, increment the index and set finish if there are no more actions left.
+            this.index++;
 
             iterator.remove();
 
@@ -109,7 +105,7 @@ public class Sequence<T> {
      * @param sequenceContext the sequence context
      * @return true if the action was successful and false if it was not
      */
-    public boolean applySchedule(final SequenceContext sequenceContext) {
+    public void applySchedule(final SequenceContext sequenceContext) {
         final ListIterator<Action> iterator = this.actions.listIterator();
 
         if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
@@ -117,44 +113,47 @@ public class Sequence<T> {
         this.ticks++;
 
         if (iterator.hasNext()) {
-            final int actionIndex = iterator.nextIndex();
             final Action rawAction = iterator.next();
 
             final ScheduleAction action;
-            if (rawAction instanceof ObserverAction) {
+            if (rawAction instanceof ScheduleAction) {
                 action = (ScheduleAction) rawAction;
-            } else return false;
+            } else return;
 
             if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
-
-            if (actionIndex > this.index++) return false;
 
             final long current = System.currentTimeMillis();
 
             // 1. Check that the tick is being executed in the period wanted.
 
-            if (action.getPeriod() != 0 && this.ticks % action.getPeriod() != 0) return false;
+            if (action.getPeriod() != 0 && this.ticks % action.getPeriod() != 0) return;
 
             // 2. Fail the action if it is being executed before the delay.
 
-            if (this.lastTime + ((action.getDelay() / 20) * 1000) > current
-                    && action.getDelay() != 0)
-                return this.fail(action, sequenceContext);
+            if (this.lastTime + ((action.getDelay() / 20) * 1000) > current) {
+                this.fail(action, sequenceContext);
+                return;
+            }
 
             // 3. Fail the action if it being executed after the expire.
 
-            if (this.lastTime + ((action.getExpire() / 20) * 1000) < current
-                    || action.getExpire() == 0) {
-                return this.fail(action, sequenceContext);
+            if (this.lastTime + ((action.getExpire() / 20) * 1000) < current) {
+                this.fail(action, sequenceContext);
+                return;
             }
 
             // 4. Run the action conditions and fail if they do not pass.
 
-            if (!action.apply(sequenceContext)) return this.fail(action, sequenceContext);
+            if (!action.apply(sequenceContext)) {
+                this.fail(action, sequenceContext);
+                return;
+            }
 
             // If this is a repeating task that will expire next tick OR a delayed task, remove it.
             if (action.getPeriod() == 0
                     || current + ((action.getPeriod() / 20) * 1000) > this.lastTime + ((action.getExpire() / 20) * 1000)) {
+                this.index++;
+
                 iterator.remove();
 
                 if (!iterator.hasNext()) {
@@ -162,10 +161,9 @@ public class Sequence<T> {
                 }
             }
 
-            return this.succeed(action, sequenceContext);
+            this.succeed(action, sequenceContext);
         }
 
-        return true;
     }
 
     public boolean succeed(final Action action, final SequenceContext sequenceContext) {
@@ -178,8 +176,6 @@ public class Sequence<T> {
 
     public boolean fail(final Action action, final SequenceContext sequenceContext) {
         this.state = action.failure(sequenceContext) ? State.CANCELLED : this.state;
-
-        this.lastTime = System.currentTimeMillis();
 
         return false;
     }
