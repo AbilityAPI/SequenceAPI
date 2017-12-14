@@ -3,6 +3,7 @@ package com.abilityapi.sequenceapi;
 import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
+import com.abilityapi.sequenceapi.util.EventComparator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,15 @@ import java.util.ListIterator;
  */
 public class Sequence<T> {
 
+    public static <E> EventComparator<Class<? extends E>, E> getComparatorEqual() {
+        return (base, that) -> base.equals(that.getClass());
+    }
+
+    public static <E> EventComparator<Class<? extends E>, E> getComparatorAssignable() {
+        return (base, that) -> base.isAssignableFrom(that.getClass());
+    }
+
+    private final EventComparator<Class<? extends T>, T> eventComparator;
     private final SequenceContext sequenceContext;
     private final SequenceBlueprint<T> sequenceBlueprint;
 
@@ -28,9 +38,11 @@ public class Sequence<T> {
     private long lastTime = System.currentTimeMillis();
     private State state = State.INACTIVE;
 
-    public Sequence(final SequenceContext sequenceContext,
+    public Sequence(final List<Action> actions,
+                    final SequenceContext sequenceContext,
                     final SequenceBlueprint<T> sequenceBlueprint,
-                    final List<Action> actions) {
+                    final EventComparator<Class<? extends T>, T> eventComparator) {
+        this.eventComparator = eventComparator;
         this.sequenceContext = sequenceContext;
         this.sequenceBlueprint = sequenceBlueprint;
 
@@ -63,7 +75,7 @@ public class Sequence<T> {
 
             // 1. Check that the event is the correct one for this action.
 
-            if (!action.getEventClass().equals(event.getClass())) return this.fail(action, sequenceContext);
+            if (!this.eventComparator.apply(action.getEventClass(), event)) return this.fail(action, sequenceContext);
 
             // 2. Fail the action if it is being executed before the delay.
 
@@ -205,6 +217,15 @@ public class Sequence<T> {
      */
     public final Class<? extends T> getTrigger() {
         return this.sequenceBlueprint.getTrigger();
+    }
+
+    /**
+     * Returns the {@link EventComparator}.
+     *
+     * @return the event comparator
+     */
+    public final EventComparator<Class<? extends T>, T> getEventComparator() {
+        return this.eventComparator;
     }
 
     /**

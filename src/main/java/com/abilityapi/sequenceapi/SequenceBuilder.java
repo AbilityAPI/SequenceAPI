@@ -54,7 +54,7 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
                         .custom("trigger", getTrigger())
                         .merge(buildContext).build();
 
-                return new Sequence<>(createContext, this, SequenceBuilder.this.actions);
+                return new Sequence<>(SequenceBuilder.this.actions, createContext, this, Sequence.getComparatorEqual());
             }
 
             @Override
