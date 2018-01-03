@@ -14,16 +14,20 @@ import java.util.Set;
  */
 public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
 
-    private final HashMap<Class<? extends SequenceBlueprint>, SequenceBlueprint<T>> registry = Maps.newHashMap();
+    private final HashMap<Class<?>, SequenceBlueprint<T>> registry = Maps.newHashMap();
 
     /**
      * Puts the {@link SequenceBlueprint} into this registry.
+     *
+     * <p>The {@link SequenceContext} must contain a unique
+     * {@link SequenceContext#OWNER} to provide ownership over
+     * a {@link Sequence}.</p>
      *
      * @param sequenceBlueprint the sequence blueprint
      * @return true if the blueprint was added, false if it was not
      */
     public final boolean put(final SequenceBlueprint<T> sequenceBlueprint) {
-        this.registry.put(sequenceBlueprint.getContext().getRoot(), sequenceBlueprint);
+        this.registry.put(sequenceBlueprint.getContext().getOwner(), sequenceBlueprint);
 
         return true;
     }
@@ -35,7 +39,7 @@ public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
      * @param key the key
      * @return the sequence blueprint
      */
-    public final Optional<SequenceBlueprint<T>> get(final Class<? extends SequenceBlueprint> key) {
+    public final <O> Optional<SequenceBlueprint<T>> get(final Class<? extends O> key) {
         return Optional.ofNullable(this.registry.get(key));
     }
 
@@ -44,7 +48,7 @@ public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
      *
      * @return the sequence key, or {@code null} if they check is not contained in this registry
      */
-    public final Set<Class<? extends SequenceBlueprint>> keySet() {
+    public final <O> Set<Class<?>> keySet() {
         return this.registry.keySet();
     }
 
