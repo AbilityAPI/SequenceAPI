@@ -48,7 +48,7 @@ public class SequenceRegistry<T> implements Iterable<SequenceBlueprint<T>> {
      *
      * @return the sequence key, or {@code null} if they check is not contained in this registry
      */
-    public final <O> Set<Class<?>> keySet() {
+    public final Set<Class<?>> keySet() {
         return this.registry.keySet();
     }
 
