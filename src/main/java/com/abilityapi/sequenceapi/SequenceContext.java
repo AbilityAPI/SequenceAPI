@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class SequenceContext {
 
-    public static String ID = "uniqueId";
+    public static String ID = "id";
     public static String ROOT = "root";
     public static String SOURCE = "source";
     public static String OWNER = "owner";

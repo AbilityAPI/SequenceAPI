@@ -124,7 +124,7 @@ public class SequenceManager<T> {
      * @param sequenceContext the sequence context
      * @param predicate the predicate
      */
-    public void updateSchedulerIf(final SequenceContext sequenceContext, final Predicate<Object> predicate) {
+    public void updateSchedulerIf(final SequenceContext sequenceContext, final Predicate<Sequence<T>> predicate) {
         checkNotNull(sequenceContext);
         checkNotNull(predicate);
         SequencePreconditions.checkContextType(sequenceContext, SequenceContext.ID, UUID.class);
