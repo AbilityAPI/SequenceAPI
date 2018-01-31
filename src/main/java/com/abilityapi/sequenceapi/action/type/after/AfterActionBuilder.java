@@ -42,7 +42,17 @@ public class AfterActionBuilder<T> implements ActionBuilder<T> {
      */
     public final AfterActionBuilder<T> delay(final int value) {
         this.action.setDelay(value);
-        this.action.setExpire(value + 1);
+        return this;
+    }
+
+    /**
+     * Sets an expire to this {@link AfterAction}.
+     *
+     * @param value the period to expire
+     * @return this builder
+     */
+    public final AfterActionBuilder<T> expire(final int value) {
+        this.action.setExpire(value);
         return this;
     }
 
