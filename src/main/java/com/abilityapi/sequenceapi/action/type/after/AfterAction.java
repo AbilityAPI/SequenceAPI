@@ -14,6 +14,8 @@ public class AfterAction implements Action {
     private int delay = 0;
     private int expire = 0;
 
+    public AfterAction() {}
+
     @Override
     public void addCondition(final Condition condition) {
         this.conditions.add(condition);

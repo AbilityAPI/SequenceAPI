@@ -116,9 +116,8 @@ public class Sequence<T> {
      * with an appropriate {@link SequenceContext}.
      *
      * @param sequenceContext the sequence context
-     * @return true if the action was successful and false if it was not
      */
-    public boolean applyAfter(final SequenceContext sequenceContext) {
+    public void applyAfter(final SequenceContext sequenceContext) {
         final ListIterator<Action> iterator = this.actions.listIterator();
 
         if (iterator.hasNext()) {
@@ -127,7 +126,7 @@ public class Sequence<T> {
             final AfterAction action;
             if (rawAction instanceof AfterAction) {
                 action = (AfterAction) rawAction;
-            } else return false;
+            } else return;
 
             if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
 
@@ -136,19 +135,22 @@ public class Sequence<T> {
             // 1. Fail the action if it is being executed before the delay.
 
             if (this.lastTime + ((action.getDelay() / 20) * 1000) > current) {
-                return false;
+                this.fail(action, sequenceContext);
+                return;
             }
 
             // 2. Fail the action if it being executed after the expire.
 
             if (this.lastTime + ((action.getExpire() / 20) * 1000) < current) {
-                return this.fail(action, sequenceContext);
+                this.fail(action, sequenceContext);
+                return;
             }
 
             // 3. Run the action conditions and fail if they do not pass.
 
             if (!action.apply(sequenceContext)) {
-                return this.fail(action, sequenceContext);
+                this.fail(action, sequenceContext);
+                return;
             }
 
             // 4. Succeed the action, remove it, increment the index and set finish if there are no more actions left.
@@ -161,10 +163,9 @@ public class Sequence<T> {
                 if (this.index == this.actionsSize) this.state = State.FINISHED;
             }
 
-            return this.succeed(action, sequenceContext);
+            this.succeed(action, sequenceContext);
         }
 
-        return true;
     }
 
     /**
