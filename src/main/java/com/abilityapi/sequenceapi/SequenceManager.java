@@ -109,7 +109,7 @@ public class SequenceManager<T> {
                 if (block.getElement().equals(sequence.getTrigger())) return true;
             }
 
-            return this._invokeScheduler(sequence, sequenceContext);
+            return this._invokeScheduler(sequence, sequenceContext) && this._invokeAfter(sequence, sequenceContext);
         });
     }
 
@@ -136,7 +136,7 @@ public class SequenceManager<T> {
 
             if (!predicate.test(sequence)) return false;
 
-            return this._invokeScheduler(sequence, sequenceContext);
+            return this._invokeScheduler(sequence, sequenceContext) && this._invokeAfter(sequence, sequenceContext);
         });
     }
 
@@ -241,6 +241,32 @@ public class SequenceManager<T> {
         // 1. Apply the sequence.
 
         sequence.applyObserve(event, sequenceContext);
+
+        // 2. Check if the sequence is cancelled, or is expired.
+
+        final Sequence.State sequenceState = sequence.getState();
+
+        if (!sequenceState.isSafe()) {
+            remove = true;
+        }
+
+        // 3. Check if the sequence has finished and fire the hook and remove.
+
+        if (sequenceState.equals(Sequence.State.FINISHED)) {
+            // Fire sequence finish hook.
+
+            remove = true;
+        }
+
+        return remove;
+    }
+
+    public boolean _invokeAfter(final Sequence<T> sequence, final SequenceContext sequenceContext) {
+        boolean remove = false;
+
+        // 1. Apply the sequence.
+
+        sequence.applyAfter(sequenceContext);
 
         // 2. Check if the sequence is cancelled, or is expired.
 

@@ -2,6 +2,8 @@ package com.abilityapi.sequenceapi;
 
 import com.abilityapi.sequenceapi.action.Action;
 import com.abilityapi.sequenceapi.action.ActionBuilder;
+import com.abilityapi.sequenceapi.action.type.after.AfterAction;
+import com.abilityapi.sequenceapi.action.type.after.AfterActionBuilder;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
@@ -31,6 +33,18 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
         this.actions.add(action);
 
         return new ObserverActionBuilder<>(this, action);
+    }
+
+    @Override
+    public AfterActionBuilder<T> after() {
+        return this.after(new AfterAction());
+    }
+
+    @Override
+    public AfterActionBuilder<T> after(AfterAction action) {
+        this.actions.add(action);
+
+        return new AfterActionBuilder<>(this, action);
     }
 
     @Override

@@ -3,6 +3,8 @@ package com.abilityapi.sequenceapi.action;
 import com.abilityapi.sequenceapi.Sequence;
 import com.abilityapi.sequenceapi.SequenceBlueprint;
 import com.abilityapi.sequenceapi.SequenceContext;
+import com.abilityapi.sequenceapi.action.type.after.AfterAction;
+import com.abilityapi.sequenceapi.action.type.after.AfterActionBuilder;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBlueprint;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverActionBuilder;
@@ -41,6 +43,21 @@ public interface ActionBuilder<T> {
      * @return the observer action builder
      */
     ObserverActionBuilder<T> observe(final ObserverAction<T> action);
+
+    /**
+     * Adds a new {@link AfterAction} to the {@link Sequence}.
+     *
+     * @return the after action builder
+     */
+    AfterActionBuilder<T> after();
+
+    /**
+     * Adds a new {@link AfterAction} to the {@link Sequence}.
+     *
+     * @param afterAction the after action
+     * @return the after action builder
+     */
+    AfterActionBuilder<T> after(final AfterAction afterAction);
 
     /**
      * Adds a new {@link ScheduleAction} to the {@link Sequence}.

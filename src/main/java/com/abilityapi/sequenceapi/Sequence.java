@@ -1,6 +1,7 @@
 package com.abilityapi.sequenceapi;
 
 import com.abilityapi.sequenceapi.action.Action;
+import com.abilityapi.sequenceapi.action.type.after.AfterAction;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
 import com.abilityapi.sequenceapi.util.EventComparator;
@@ -34,7 +35,7 @@ public class Sequence<T> {
     private final int actionsSize;
 
     private int index = 0;
-    private long ticks = 0;
+    private long scheduleTicks = 0;
     private long lastTime = System.currentTimeMillis();
     private State state = State.INACTIVE;
 
@@ -111,18 +112,55 @@ public class Sequence<T> {
     }
 
     /**
-     * Applies the next {@link ScheduleAction} in the {@link Sequence}
+     * Applies the next {@link AfterAction} in the {@link Sequence}
      * with an appropriate {@link SequenceContext}.
      *
      * @param sequenceContext the sequence context
      * @return true if the action was successful and false if it was not
+     */
+    public boolean applyAfter(final SequenceContext sequenceContext) {
+        final ListIterator<Action> iterator = this.actions.listIterator();
+
+        if (iterator.hasNext()) {
+            final Action rawAction = iterator.next();
+
+            final AfterAction action;
+            if (rawAction instanceof AfterAction) {
+                action = (AfterAction) rawAction;
+            } else return false;
+
+            if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
+
+            final long current = System.currentTimeMillis();
+
+            if (!(this.lastTime + ((action.getDelay() / 20) * 1000) > current)) {
+                this.index++;
+
+                iterator.remove();
+
+                if (!iterator.hasNext()) {
+                    if (this.index == this.actionsSize) this.state = State.FINISHED;
+                }
+
+                return this.succeed(action, sequenceContext);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Applies the next {@link ScheduleAction} in the {@link Sequence}
+     * with an appropriate {@link SequenceContext}.
+     *
+     * @param sequenceContext the sequence context
      */
     public void applySchedule(final SequenceContext sequenceContext) {
         final ListIterator<Action> iterator = this.actions.listIterator();
 
         if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
 
-        this.ticks++;
+        this.scheduleTicks++;
 
         if (iterator.hasNext()) {
             final Action rawAction = iterator.next();
@@ -138,7 +176,7 @@ public class Sequence<T> {
 
             // 1. Check that the tick is being executed in the period wanted.
 
-            if (action.getPeriod() != 0 && this.ticks % action.getPeriod() != 0) return;
+            if (action.getPeriod() != 0 && this.scheduleTicks % action.getPeriod() != 0) return;
 
             // 2. Fail the action if it is being executed before the delay.
 
@@ -161,9 +199,8 @@ public class Sequence<T> {
                 return;
             }
 
-            // If this is a repeating task that will expire next tick OR a delayed task, remove it.
-            if (action.getPeriod() == 0
-                    || current + ((action.getPeriod() / 20) * 1000) > this.lastTime + ((action.getExpire() / 20) * 1000)) {
+            // If this is a repeating task that will expire next tick remove it.
+            if (current + ((action.getPeriod() / 20) * 1000) > this.lastTime + ((action.getExpire() / 20) * 1000)) {
                 this.index++;
 
                 iterator.remove();

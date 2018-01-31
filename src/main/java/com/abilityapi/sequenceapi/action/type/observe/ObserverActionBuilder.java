@@ -6,6 +6,8 @@ import com.abilityapi.sequenceapi.action.ActionBuilder;
 import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.action.condition.ConditionSupplier;
 import com.abilityapi.sequenceapi.action.condition.ConditionType;
+import com.abilityapi.sequenceapi.action.type.after.AfterAction;
+import com.abilityapi.sequenceapi.action.type.after.AfterActionBuilder;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleActionBuilder;
 
@@ -71,6 +73,16 @@ public class ObserverActionBuilder<T> implements ActionBuilder<T> {
     @Override
     public final ObserverActionBuilder<T> observe(final ObserverAction<T> action) {
         return this.sequenceBuilder.observe(action);
+    }
+
+    @Override
+    public AfterActionBuilder<T> after() {
+        return this.after(new AfterAction());
+    }
+
+    @Override
+    public AfterActionBuilder<T> after(AfterAction afterAction) {
+        return this.sequenceBuilder.after(afterAction);
     }
 
     @Override
