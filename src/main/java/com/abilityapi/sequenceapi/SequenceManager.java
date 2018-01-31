@@ -109,7 +109,7 @@ public class SequenceManager<T> {
                 if (block.getElement().equals(sequence.getTrigger())) return true;
             }
 
-            return this._invokeScheduler(sequence, sequenceContext) && this._invokeAfter(sequence, sequenceContext);
+            return this._invokeScheduler(sequence, sequenceContext) || this._invokeAfter(sequence, sequenceContext);
         });
     }
 
@@ -136,7 +136,7 @@ public class SequenceManager<T> {
 
             if (!predicate.test(sequence)) return false;
 
-            return this._invokeScheduler(sequence, sequenceContext) && this._invokeAfter(sequence, sequenceContext);
+            return this._invokeScheduler(sequence, sequenceContext) || this._invokeAfter(sequence, sequenceContext);
         });
     }
 
