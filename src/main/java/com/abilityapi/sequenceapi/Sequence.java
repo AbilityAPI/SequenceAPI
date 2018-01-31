@@ -134,6 +134,10 @@ public class Sequence<T> {
             final long current = System.currentTimeMillis();
 
             if (!(this.lastTime + ((action.getDelay() / 20) * 1000) > current)) {
+                if (!action.apply(sequenceContext)) {
+                    return this.fail(action, sequenceContext);
+                }
+
                 this.index++;
 
                 iterator.remove();
