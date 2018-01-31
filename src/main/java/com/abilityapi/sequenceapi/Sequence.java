@@ -133,24 +133,38 @@ public class Sequence<T> {
 
             final long current = System.currentTimeMillis();
 
-            if (!(this.lastTime + ((action.getDelay() / 20) * 1000) > current)) {
-                if (!action.apply(sequenceContext)) {
-                    return this.fail(action, sequenceContext);
-                }
+            // 1. Fail the action if it is being executed before the delay.
 
-                this.index++;
-
-                iterator.remove();
-
-                if (!iterator.hasNext()) {
-                    if (this.index == this.actionsSize) this.state = State.FINISHED;
-                }
-
-                return this.succeed(action, sequenceContext);
+            if (this.lastTime + ((action.getDelay() / 20) * 1000) > current) {
+                return false;
             }
+
+            // 2. Fail the action if it being executed after the expire.
+
+            if (this.lastTime + ((action.getExpire() / 20) * 1000) < current) {
+                return this.fail(action, sequenceContext);
+            }
+
+            // 3. Run the action conditions and fail if they do not pass.
+
+            if (!action.apply(sequenceContext)) {
+                return this.fail(action, sequenceContext);
+            }
+
+            // 4. Succeed the action, remove it, increment the index and set finish if there are no more actions left.
+
+            this.index++;
+
+            iterator.remove();
+
+            if (!iterator.hasNext()) {
+                if (this.index == this.actionsSize) this.state = State.FINISHED;
+            }
+
+            return this.succeed(action, sequenceContext);
         }
 
-        return false;
+        return true;
     }
 
     /**
