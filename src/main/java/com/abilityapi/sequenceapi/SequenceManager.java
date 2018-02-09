@@ -1,6 +1,7 @@
 package com.abilityapi.sequenceapi;
 
 import com.abilityapi.sequenceapi.util.Ordered;
+import com.abilityapi.sequenceapi.util.Tristate;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
@@ -263,11 +264,11 @@ public class SequenceManager<T> {
     }
 
     public boolean _invokeAfter(final Sequence<T> sequence, final SequenceContext sequenceContext) {
-        boolean remove = false;
+        boolean remove;
 
-        // 1. Apply the sequence.
+        // 1. Apply the sequence, this has one chance to pass, so if it fails it can be removed.
 
-        sequence.applyAfter(sequenceContext);
+        remove = sequence.applyAfter(sequenceContext).equals(Tristate.FALSE);
 
         // 2. Check if the sequence is cancelled, or is expired.
 

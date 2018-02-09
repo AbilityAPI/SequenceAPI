@@ -6,6 +6,7 @@ import com.abilityapi.sequenceapi.action.type.after.AfterAction;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
 import com.abilityapi.sequenceapi.util.EventComparator;
+import com.abilityapi.sequenceapi.util.Tristate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +119,7 @@ public class Sequence<T> {
      *
      * @param sequenceContext the sequence context
      */
-    public void applyAfter(final SequenceContext sequenceContext) {
+    public Tristate applyAfter(final SequenceContext sequenceContext) {
         final ListIterator<Action> iterator = this.actions.listIterator();
 
         if (iterator.hasNext()) {
@@ -127,7 +128,7 @@ public class Sequence<T> {
             final AfterAction action;
             if (rawAction instanceof AfterAction) {
                 action = (AfterAction) rawAction;
-            } else return;
+            } else return Tristate.UNDEFINED;
 
             if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
 
@@ -137,14 +138,14 @@ public class Sequence<T> {
 
             if (this.lastTime + ((action.getDelay() / 20) * 1000) > current) {
                 this.fail(action, sequenceContext);
-                return;
+                return Tristate.UNDEFINED;
             }
 
             // 2. Run the action conditions and fail if they do not pass.
 
             if (!action.apply(sequenceContext)) {
                 this.fail(action, sequenceContext);
-                return;
+                return Tristate.FALSE;
             }
 
             // 3. Succeed the action, remove it, increment the index and set finish if there are no more actions left.
@@ -157,9 +158,10 @@ public class Sequence<T> {
                 if (this.index == this.actionsSize) this.state = State.FINISHED;
             }
 
-            this.succeed(action, sequenceContext);
+            return Tristate.from(this.succeed(action, sequenceContext));
         }
 
+        return Tristate.TRUE;
     }
 
     /**
