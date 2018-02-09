@@ -3,6 +3,7 @@ package com.abilityapi.sequenceapi.action.type.schedule;
 import com.abilityapi.sequenceapi.Sequence;
 import com.abilityapi.sequenceapi.SequenceContext;
 import com.abilityapi.sequenceapi.action.Action;
+import com.abilityapi.sequenceapi.action.Expirable;
 import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.action.condition.ConditionType;
 
@@ -33,7 +34,7 @@ import java.util.List;
  * which it will then execute the {@link ConditionType#SUCCESS}
  * {@link Condition}s one last time.</p>
  */
-public class ScheduleAction implements Action {
+public class ScheduleAction implements Action, Expirable {
 
     private List<Condition> conditions = new ArrayList<>();
     private int delay = 0;

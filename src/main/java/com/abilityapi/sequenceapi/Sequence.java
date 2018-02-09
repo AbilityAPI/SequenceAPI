@@ -1,6 +1,7 @@
 package com.abilityapi.sequenceapi;
 
 import com.abilityapi.sequenceapi.action.Action;
+import com.abilityapi.sequenceapi.action.Expirable;
 import com.abilityapi.sequenceapi.action.type.after.AfterAction;
 import com.abilityapi.sequenceapi.action.type.observe.ObserverAction;
 import com.abilityapi.sequenceapi.action.type.schedule.ScheduleAction;
@@ -139,21 +140,14 @@ public class Sequence<T> {
                 return;
             }
 
-            // 2. Fail the action if it being executed after the expire.
-
-            if (this.lastTime + ((action.getExpire() / 20) * 1000) < current) {
-                this.fail(action, sequenceContext);
-                return;
-            }
-
-            // 3. Run the action conditions and fail if they do not pass.
+            // 2. Run the action conditions and fail if they do not pass.
 
             if (!action.apply(sequenceContext)) {
                 this.fail(action, sequenceContext);
                 return;
             }
 
-            // 4. Succeed the action, remove it, increment the index and set finish if there are no more actions left.
+            // 3. Succeed the action, remove it, increment the index and set finish if there are no more actions left.
 
             this.index++;
 
@@ -318,11 +312,13 @@ public class Sequence<T> {
         public void update(final Sequence sequence) {
             // Set no more actions as expired.
             if (sequence.actions.isEmpty()) {
-                sequence.state = State.EXPIRED;
+                sequence.state = State.FINISHED;
                 return;
             }
 
-            Action action = (Action) sequence.actions.get(0);
+            if (!(sequence.actions.get(0) instanceof Expirable)) return;
+
+            Expirable action = (Expirable) sequence.actions.get(0);
             if (sequence.getLastActionTime() + ((action.getExpire() / 20) * 1000) < System.currentTimeMillis()) sequence.state = State.EXPIRED;
         }
 

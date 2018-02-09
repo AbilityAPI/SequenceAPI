@@ -24,25 +24,11 @@ public interface Action {
     void setDelay(final int period);
 
     /**
-     * Sets an expire to this {@link Action}.
-     *
-     * @param period the period to expire
-     */
-    void setExpire(final int period);
-
-    /**
      * Returns the delay period.
      *
      * @return the delay period
      */
     int getDelay();
-
-    /**
-     * Returns the expire period.
-     *
-     * @return the expire period
-     */
-    int getExpire();
 
     /**
      * Applies all {@link ConditionType#NORMAL} {@link Condition}s

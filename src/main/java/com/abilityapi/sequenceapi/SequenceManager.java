@@ -229,8 +229,6 @@ public class SequenceManager<T> {
         this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
             if (sequence.getState().equals(Sequence.State.FINISHED)) return force;
 
-            sequence.getState().update(sequence);
-
             return force || sequence.getState().equals(Sequence.State.EXPIRED);
         });
     }
@@ -245,6 +243,9 @@ public class SequenceManager<T> {
         // 2. Check if the sequence is cancelled, or is expired.
 
         final Sequence.State sequenceState = sequence.getState();
+
+        // Check for an updated state first.
+        sequenceState.update(sequence);
 
         if (!sequenceState.isSafe()) {
             remove = true;
@@ -272,6 +273,9 @@ public class SequenceManager<T> {
 
         final Sequence.State sequenceState = sequence.getState();
 
+        // Check for an updated state first.
+        sequenceState.update(sequence);
+
         if (!sequenceState.isSafe()) {
             remove = true;
         }
@@ -297,6 +301,9 @@ public class SequenceManager<T> {
         // 2. Check if the sequence is cancelled, or is expired.
 
         final Sequence.State sequenceState = sequence.getState();
+
+        // Check for an updated state first.
+        sequenceState.update(sequence);
 
         if (!sequenceState.isSafe()) {
             remove = true;
@@ -327,6 +334,10 @@ public class SequenceManager<T> {
             final Sequence<T> sequence = sequenceBlueprint.create(sequenceContext);
 
             if (sequence.applyObserve(event, sequenceContext)) {
+
+                // Check for an updated state first.
+                sequence.getState().update(sequence);
+
                 if (!sequence.getState().isSafe()) {
                     continue;
                 }

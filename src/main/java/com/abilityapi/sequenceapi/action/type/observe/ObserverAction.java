@@ -3,6 +3,7 @@ package com.abilityapi.sequenceapi.action.type.observe;
 import com.abilityapi.sequenceapi.Sequence;
 import com.abilityapi.sequenceapi.SequenceContext;
 import com.abilityapi.sequenceapi.action.Action;
+import com.abilityapi.sequenceapi.action.Expirable;
 import com.abilityapi.sequenceapi.action.condition.Condition;
 import com.abilityapi.sequenceapi.action.condition.ConditionType;
 
@@ -27,7 +28,7 @@ import java.util.List;
  *
  * @param <T> the event type
  */
-public class ObserverAction<T> implements Action {
+public class ObserverAction<T> implements Action, Expirable {
 
     private final Class<? extends T> eventClass;
 

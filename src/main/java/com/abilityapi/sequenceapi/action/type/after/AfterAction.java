@@ -12,7 +12,6 @@ public class AfterAction implements Action {
 
     private List<Condition> conditions = new ArrayList<>();
     private int delay = 0;
-    private int expire = 0;
 
     public AfterAction() {}
 
@@ -27,18 +26,8 @@ public class AfterAction implements Action {
     }
 
     @Override
-    public void setExpire(int period) {
-        this.expire = period;
-    }
-
-    @Override
     public int getDelay() {
         return this.delay;
-    }
-
-    @Override
-    public int getExpire() {
-        return this.expire;
     }
 
     @Override

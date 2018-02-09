@@ -45,17 +45,6 @@ public class AfterActionBuilder<T> implements ActionBuilder<T> {
         return this;
     }
 
-    /**
-     * Sets an expire to this {@link AfterAction}.
-     *
-     * @param value the period to expire
-     * @return this builder
-     */
-    public final AfterActionBuilder<T> expire(final int value) {
-        this.action.setExpire(value);
-        return this;
-    }
-
     @Override
     public final ObserverActionBuilder<T> observe(final Class<? extends T> event) {
         return this.observe(new ObserverAction<>(event));
