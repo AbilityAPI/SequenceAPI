@@ -12,16 +12,17 @@ public interface SequenceBlueprint<T> {
      * Returns a new {@link Sequence} created with
      * the existing order.
      *
+     * @param rootEvent the sequence trigger instance
      * @param sequenceContext the sequence context
      * @return the new sequence
      */
-    Sequence<T> create(final SequenceContext sequenceContext);
+    Sequence<T> create(final T rootEvent, final SequenceContext sequenceContext);
 
     /**
      * Returns the {@link Sequence} event trigger
      * class.
      *
-     * <p>Also accessed by {@link Sequence#getTrigger()}.</p>
+     * <p>Also accessed by {@link Sequence#getTriggerClass()}.</p>
      *
      * @return the event trigger class
      */

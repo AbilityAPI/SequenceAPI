@@ -49,7 +49,7 @@ public class SequenceManager<T> {
 
         this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
             for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
-                if (block.getElement().equals(sequence.getTrigger())) return true;
+                if (block.getElement().equals(sequence.getTriggerClass())) return true;
             }
 
             return this._invokeObserver(event, sequence, sequenceContext);
@@ -79,7 +79,7 @@ public class SequenceManager<T> {
 
         this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
             for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
-                if (block.getElement().equals(sequence.getTrigger())) return true;
+                if (block.getElement().equals(sequence.getTriggerClass())) return true;
             }
 
             if (!predicate.test(sequence)) return false;
@@ -107,7 +107,7 @@ public class SequenceManager<T> {
 
         this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
             for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
-                if (block.getElement().equals(sequence.getTrigger())) return true;
+                if (block.getElement().equals(sequence.getTriggerClass())) return true;
             }
 
             return this._invokeScheduler(sequence, sequenceContext) || this._invokeAfter(sequence, sequenceContext);
@@ -132,7 +132,7 @@ public class SequenceManager<T> {
 
         this.sequences.get(sequenceContext.getId()).removeIf(sequence -> {
             for (Ordered<Class<? extends T>> block : this.blockedSequences.get(sequenceContext.getId())) {
-                if (block.getElement().equals(sequence.getTrigger())) return true;
+                if (block.getElement().equals(sequence.getTriggerClass())) return true;
             }
 
             if (!predicate.test(sequence)) return false;
@@ -332,7 +332,7 @@ public class SequenceManager<T> {
 
             // 2. Apply the sequence for the first time to check the observer or leave it.
 
-            final Sequence<T> sequence = sequenceBlueprint.create(sequenceContext);
+            final Sequence<T> sequence = sequenceBlueprint.create(event, sequenceContext);
 
             if (sequence.applyObserve(event, sequenceContext)) {
 

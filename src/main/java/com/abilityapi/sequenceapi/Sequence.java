@@ -33,6 +33,7 @@ public class Sequence<T> {
     private final SequenceContext sequenceContext;
     private final SequenceBlueprint<T> sequenceBlueprint;
 
+    private final T rootEvent;
     private final List<Action> actions;
     private final int actionsSize;
 
@@ -41,7 +42,8 @@ public class Sequence<T> {
     private long lastTime = System.currentTimeMillis();
     private State state = State.INACTIVE;
 
-    public Sequence(final List<Action> actions,
+    public Sequence(final T rootEvent,
+                    final List<Action> actions,
                     final SequenceContext sequenceContext,
                     final SequenceBlueprint<T> sequenceBlueprint,
                     final EventComparator<Class<? extends T>, T> eventComparator) {
@@ -49,6 +51,7 @@ public class Sequence<T> {
         this.sequenceContext = sequenceContext;
         this.sequenceBlueprint = sequenceBlueprint;
 
+        this.rootEvent = rootEvent;
         this.actions = new ArrayList<>(actions);
         this.actionsSize = actions.size();
     }
@@ -64,6 +67,11 @@ public class Sequence<T> {
     public boolean applyObserve(final T event, final SequenceContext sequenceContext) {
         final ListIterator<Action> iterator = this.actions.listIterator();
 
+        final SequenceContext modifiedSequenceContext = SequenceContext
+                .from(sequenceContext)
+                .merge(this.sequenceContext)
+                .build();
+
         if (iterator.hasNext()) {
             final Action rawAction = iterator.next();
 
@@ -78,24 +86,24 @@ public class Sequence<T> {
 
             // 1. Check that the event is the correct one for this action.
 
-            if (!this.eventComparator.apply(action.getEventClass(), event)) return this.fail(action, sequenceContext);
+            if (!this.eventComparator.apply(action.getEventClass(), event)) return this.fail(action, modifiedSequenceContext);
 
             // 2. Fail the action if it is being executed before the delay.
 
             if (this.index > 0 && this.lastTime + ((action.getDelay() / 20) * 1000) > current) {
-                return this.fail(action, sequenceContext);
+                return this.fail(action, modifiedSequenceContext);
             }
 
             // 3. Fail the action if it being executed after the expire.
 
             if (this.index > 0 && this.lastTime + ((action.getExpire() / 20) * 1000) < current) {
-                return this.fail(action, sequenceContext);
+                return this.fail(action, modifiedSequenceContext);
             }
 
             // 4. Run the action conditions and fail if they do not pass.
 
-            if (!action.apply(sequenceContext)) {
-                return this.fail(action, sequenceContext);
+            if (!action.apply(modifiedSequenceContext)) {
+                return this.fail(action, modifiedSequenceContext);
             }
 
             // 5. Succeed the action, remove it, increment the index and set finish if there are no more actions left.
@@ -107,7 +115,7 @@ public class Sequence<T> {
                 if (this.index == this.actionsSize) this.state = State.FINISHED;
             }
 
-            return this.succeed(action, sequenceContext);
+            return this.succeed(action, modifiedSequenceContext);
         }
 
         return true;
@@ -121,6 +129,11 @@ public class Sequence<T> {
      */
     public Tristate applyAfter(final SequenceContext sequenceContext) {
         final ListIterator<Action> iterator = this.actions.listIterator();
+
+        final SequenceContext modifiedSequenceContext = SequenceContext
+                .from(sequenceContext)
+                .merge(this.sequenceContext)
+                .build();
 
         if (iterator.hasNext()) {
             final Action rawAction = iterator.next();
@@ -137,14 +150,14 @@ public class Sequence<T> {
             // 1. Fail the action if it is being executed before the delay.
 
             if (this.lastTime + ((action.getDelay() / 20) * 1000) > current) {
-                this.fail(action, sequenceContext);
+                this.fail(action, modifiedSequenceContext);
                 return Tristate.UNDEFINED;
             }
 
             // 2. Run the action conditions and fail if they do not pass.
 
-            if (!action.apply(sequenceContext)) {
-                this.fail(action, sequenceContext);
+            if (!action.apply(modifiedSequenceContext)) {
+                this.fail(action, modifiedSequenceContext);
                 return Tristate.FALSE;
             }
 
@@ -158,7 +171,7 @@ public class Sequence<T> {
                 if (this.index == this.actionsSize) this.state = State.FINISHED;
             }
 
-            return Tristate.from(this.succeed(action, sequenceContext));
+            return Tristate.from(this.succeed(action, modifiedSequenceContext));
         }
 
         return Tristate.TRUE;
@@ -172,6 +185,11 @@ public class Sequence<T> {
      */
     public void applySchedule(final SequenceContext sequenceContext) {
         final ListIterator<Action> iterator = this.actions.listIterator();
+
+        final SequenceContext modifiedSequenceContext = SequenceContext
+                .from(sequenceContext)
+                .merge(this.sequenceContext)
+                .build();
 
         if (this.state.equals(State.INACTIVE)) this.state = State.ACTIVE;
 
@@ -196,21 +214,21 @@ public class Sequence<T> {
             // 2. Fail the action if it is being executed before the delay.
 
             if (this.lastTime + ((action.getDelay() / 20) * 1000) > current) {
-                this.fail(action, sequenceContext);
+                this.fail(action, modifiedSequenceContext);
                 return;
             }
 
             // 3. Fail the action if it being executed after the expire.
 
             if (this.lastTime + ((action.getExpire() / 20) * 1000) < current) {
-                this.fail(action, sequenceContext);
+                this.fail(action, modifiedSequenceContext);
                 return;
             }
 
             // 4. Run the action conditions and fail if they do not pass.
 
-            if (!action.apply(sequenceContext)) {
-                this.fail(action, sequenceContext);
+            if (!action.apply(modifiedSequenceContext)) {
+                this.fail(action, modifiedSequenceContext);
                 return;
             }
 
@@ -225,7 +243,7 @@ public class Sequence<T> {
                 }
             }
 
-            this.succeed(action, sequenceContext);
+            this.succeed(action, modifiedSequenceContext);
         }
 
     }
@@ -263,11 +281,20 @@ public class Sequence<T> {
     }
 
     /**
+     * Returns the trigger {@link T}.
+     *
+     * @return the trigger
+     */
+    public final T getTrigger() {
+        return this.rootEvent;
+    }
+
+    /**
      * Returns the trigger {@link T} class.
      *
      * @return the trigger class
      */
-    public final Class<? extends T> getTrigger() {
+    public final Class<? extends T> getTriggerClass() {
         return this.sequenceBlueprint.getTrigger();
     }
 

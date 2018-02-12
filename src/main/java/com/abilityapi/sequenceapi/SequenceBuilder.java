@@ -63,12 +63,13 @@ public class SequenceBuilder<T> implements ActionBuilder<T> {
     public SequenceBlueprint<T> build(final SequenceContext buildContext) {
         return new SequenceBlueprint<T>() {
             @Override
-            public final Sequence<T> create(final SequenceContext createSequenceContext) {
+            public final Sequence<T> create(final T rootEvent, final SequenceContext createSequenceContext) {
                 final SequenceContext createContext = SequenceContext.from(createSequenceContext)
-                        .custom("trigger", getTrigger())
+                        .custom("_triggerClass", this.getTrigger())
+                        .custom("_triggerInstance", rootEvent)
                         .merge(buildContext).build();
 
-                return new Sequence<>(SequenceBuilder.this.actions, createContext, this, Sequence.getComparatorEqual());
+                return new Sequence<>(rootEvent, SequenceBuilder.this.actions, createContext, this, Sequence.getComparatorEqual());
             }
 
             @Override
